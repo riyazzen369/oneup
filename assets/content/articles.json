@@ -1,0 +1,226 @@
+{
+ "fetched_at": "2026-10-22",
+ "note": "External content summarised from the linked pages only. OneUp doesn't endorse; not medical advice.",
+ "articles": [
+  {
+   "id": "a01",
+   "dimension": "emotional",
+   "title": "Over a billion people living with mental health conditions – services require urgent scale-up",
+   "source": "World Health Organization (WHO)",
+   "date_display": "2 September 2025",
+   "date": "2025-09-02",
+   "url": "https://www.who.int/news/item/02-09-2025-over-a-billion-people-living-with-mental-health-conditions-services-require-urgent-scale-up",
+   "type": "news",
+   "summary": "WHO's new reports estimate that more than a billion people live with mental health conditions such as anxiety and depression. WHO says many countries have strengthened policies, but more investment and action are needed to scale up services."
+  },
+  {
+   "id": "a02",
+   "dimension": "emotional",
+   "title": "New WHO guidance calls for urgent transformation of mental health policies",
+   "source": "World Health Organization (WHO)",
+   "date_display": "25 March 2025",
+   "date": "2025-03-25",
+   "url": "https://www.who.int/news/item/25-03-2025-new-who-guidance-calls-for-urgent-transformation-of-mental-health-policies",
+   "type": "news",
+   "summary": "WHO launched guidance to help countries reform mental health policies and systems in line with evidence and human rights standards. It highlights holistic care and the social and economic factors, such as housing and employment, that shape mental health."
+  },
+  {
+   "id": "a03",
+   "dimension": "physical",
+   "title": "Daily physical activity, even at light intensities, linked to lower cancer risk",
+   "source": "National Institutes of Health (NIH)",
+   "date_display": "March 26, 2025",
+   "date": "2025-03-26",
+   "url": "https://www.nih.gov/news-events/news-releases/daily-physical-activity-even-light-intensities-linked-lower-cancer-risk",
+   "type": "news",
+   "summary": "An NIH and University of Oxford cohort study of more than 85,000 UK adults found that people doing light or moderate-to-vigorous daily activity had lower cancer risk than more sedentary people. It suggests the number of daily steps may matter more than intensity."
+  },
+  {
+   "id": "a04",
+   "dimension": "physical",
+   "title": "Nearly 1.8 billion adults at risk of disease from not doing enough physical activity",
+   "source": "World Health Organization (WHO)",
+   "date_display": "26 June 2024",
+   "date": "2024-06-26",
+   "url": "https://www.who.int/news/item/26-06-2024-nearly-1.8-billion-adults-at-risk-of-disease-from-not-doing-enough-physical-activity",
+   "type": "news",
+   "summary": "New data published in The Lancet Global Health show that about a third of adults worldwide did not meet recommended activity levels in 2022. WHO recommends 150 minutes of moderate or 75 minutes of vigorous activity per week, or an equivalent."
+  },
+  {
+   "id": "a05",
+   "dimension": "occupational",
+   "title": "The 2025 NAMI Workplace Mental Health Poll",
+   "source": "National Alliance on Mental Illness (NAMI)",
+   "date_display": "2025 (page metadata: 26 February 2025)",
+   "date": "2025-02-26",
+   "url": "https://www.nami.org/research/publications-reports/survey-reports/the-2025-nami-workplace-mental-health-poll/",
+   "type": "survey",
+   "summary": "A NAMI-Ipsos poll of US full-time workers found many are supportive of colleagues' mental health but worry about stigma when it comes to their own. Respondents said they need more information and support from leadership."
+  },
+  {
+   "id": "a06",
+   "dimension": "occupational",
+   "title": "Why Americans Are Working Less",
+   "source": "Gallup",
+   "date_display": "March 25, 2025",
+   "date": "2025-03-25",
+   "url": "https://www.gallup.com/workplace/658235/why-americans-working-less.aspx",
+   "type": "news",
+   "summary": "Gallup reports that US full-time employees have worked fewer hours per week since 2019, especially younger workers. It links higher burnout to working 45 or more hours a week, particularly among employees who are not engaged."
+  },
+  {
+   "id": "a07",
+   "dimension": "occupational",
+   "title": "The psychosocial working environment: Global developments and pathways for action",
+   "source": "International Labour Organization (ILO)",
+   "date_display": "22 April 2026",
+   "date": "2026-04-22",
+   "url": "https://www.ilo.org/publications/psychosocial-working-environment-global-developments-and-pathways-action",
+   "type": "report",
+   "summary": "This ILO global report examines how job design, work organisation and management, and wider workplace policies shape the psychosocial working environment, and sets out pathways for action."
+  },
+  {
+   "id": "a08",
+   "dimension": "social",
+   "title": "Social connection linked to improved health and reduced risk of early death",
+   "source": "World Health Organization (WHO)",
+   "date_display": "30 June 2025",
+   "date": "2025-06-30",
+   "url": "https://www.who.int/news/item/30-06-2025-social-connection-linked-to-improved-heath-and-reduced-risk-of-early-death",
+   "type": "news",
+   "summary": "The WHO Commission on Social Connection reports that about 1 in 6 people worldwide is affected by loneliness. It says strong social connections are linked to better health and longer life, and outlines a roadmap for action."
+  },
+  {
+   "id": "a09",
+   "dimension": "social",
+   "title": "Social connection (Questions and answers)",
+   "source": "World Health Organization (WHO)",
+   "date_display": "30 June 2025",
+   "date": "2025-06-30",
+   "url": "https://www.who.int/news-room/questions-and-answers/item/social-connection",
+   "type": "explainer",
+   "summary": "WHO explains the difference between loneliness and social isolation, who is most affected, and what drives them. Young people and people in lower-income countries report the highest rates of loneliness."
+  },
+  {
+   "id": "a10",
+   "dimension": "spiritual",
+   "title": "A Randomized Controlled Trial Assessing the Psychological Benefits of a Daily Examen-Based Practice",
+   "source": "Journal of Religion and Health (Springer Nature)",
+   "date_display": "25 January 2025",
+   "date": "2025-01-25",
+   "url": "https://link.springer.com/article/10.1007/s10943-025-02259-w",
+   "type": "research",
+   "summary": "In an exploratory trial with 115 university students, a two-week daily reflection practice based on the Examen improved life meaning, life satisfaction and hope compared with a wait-list group. No effects were found for stress, anxiety or depression."
+  },
+  {
+   "id": "a11",
+   "dimension": "spiritual",
+   "title": "Being present with oneself: mindfulness predicts and results in reduced self-objectification, with implications for meaning in life",
+   "source": "Current Psychology (Springer Nature)",
+   "date_display": "14 May 2025",
+   "date": "2025-05-14",
+   "url": "https://link.springer.com/article/10.1007/s12144-025-07915-8",
+   "type": "research",
+   "summary": "Across four studies, mostly with Chinese college students, mindfulness was linked to people seeing themselves less as tools for others' goals. Reduced self-denial of humanness was in turn associated with a greater sense of meaning in life."
+  },
+  {
+   "id": "a12",
+   "dimension": "intellectual",
+   "title": "Practice makes perfect, but to what end? Computerised brain training has limited cognitive benefits in healthy ageing",
+   "source": "Psychological Research (via PubMed Central)",
+   "date_display": "2025 Mar 24",
+   "date": "2025-03-24",
+   "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11933127/",
+   "type": "research",
+   "summary": "In a randomised study of 103 healthy older adults, a three-month brain-training app improved performance on the trained tasks. The researchers found no evidence that these gains transferred to other, untrained cognitive tasks."
+  },
+  {
+   "id": "a13",
+   "dimension": "intellectual",
+   "title": "The Combination of Physical Activity and Cognitive Games is Associated With Better Cognitive Performance and Gray Matter Volume in Older Adults",
+   "source": "International Journal of Geriatric Psychiatry (via PubMed Central)",
+   "date_display": "2025 Jul 3",
+   "date": "2025-07-03",
+   "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12226445/",
+   "type": "research",
+   "summary": "This study of 155 cognitively healthy older adults looked at cognitive activity and physical activity done close together in time. Greater diversity and frequency of cognitive activities were associated with better performance on some cognitive tests."
+  },
+  {
+   "id": "a14",
+   "dimension": "intellectual",
+   "title": "Learning music could reverse brain ageing (even if you're already old), say scientists",
+   "source": "BBC Science Focus Magazine",
+   "date_display": "July 15, 2025",
+   "date": "2025-07-15",
+   "url": "https://www.sciencefocus.com/news/brain-musical-instrument",
+   "type": "news",
+   "summary": "BBC Science Focus reports on two studies in which playing a musical instrument was associated with healthier brains in older adults, including people who took up an instrument later in life."
+  },
+  {
+   "id": "a15",
+   "dimension": "environmental",
+   "title": "Climate inaction is claiming millions of lives every year, warns new Lancet Countdown report",
+   "source": "World Health Organization (WHO)",
+   "date_display": "29 October 2025",
+   "date": "2025-10-29",
+   "url": "https://www.who.int/news/item/29-10-2025-climate-inaction-is-claiming-millions-of-lives-every-year--warns-new-lancet-countdown-report",
+   "type": "news",
+   "summary": "The 2025 Lancet Countdown report, produced with WHO, finds that 12 of 20 key indicators tracking climate-related health threats have reached record levels. WHO calls for protecting health to be a driver of climate action."
+  },
+  {
+   "id": "a16",
+   "dimension": "environmental",
+   "title": "Fossil fuel-driven air pollution claimed 1.72 million lives in India in 2022: The Lancet report",
+   "source": "The Hindu",
+   "date_display": "October 29, 2025",
+   "date": "2025-10-29",
+   "url": "https://www.thehindu.com/sci-tech/energy-and-environment/fossil-fuel-driven-air-pollution-claimed-172-million-lives-in-india-in-2022-the-lancet-report/article70216242.ece",
+   "type": "news",
+   "summary": "The Hindu reports on India-specific findings of the Lancet Countdown 2025 report, which warns that climate inaction is costing lives and affecting the economy."
+  },
+  {
+   "id": "a17",
+   "dimension": "environmental",
+   "title": "For city dwellers, even 15 minutes in nature can improve mental health",
+   "source": "Harvard T.H. Chan School of Public Health",
+   "date_display": "July 30, 2025",
+   "date": "2025-07-30",
+   "url": "https://hsph.harvard.edu/environmental-health/news/for-city-dwellers-even-15-minutes-in-nature-can-improve-mental-health/",
+   "type": "news",
+   "summary": "A new study clarifies how urban nature relates to mental health and offers low-cost recommendations for public health in cities, where conditions such as anxiety and mood disorders are more common."
+  },
+  {
+   "id": "a18",
+   "dimension": "financial",
+   "title": "People in debt more than twice as likely to report very poor mental health, new research reveals",
+   "source": "Money Advice Trust",
+   "date_display": "May 12, 2025",
+   "date": "2025-05-12",
+   "url": "https://moneyadvicetrust.org/latest-news/people-in-debt-more-than-twice-as-likely-to-report-very-poor-mental-health-new-research-reveals/",
+   "type": "news",
+   "summary": "UK research from the Money Advice Trust found that adults behind on household bills were more than twice as likely to report very poor mental health. The charity highlights joining up mental health and money advice support."
+  },
+  {
+   "id": "a19",
+   "dimension": "financial",
+   "title": "Social determinants of financial stress and association with psychological distress among young adults 18–26 years in the United States",
+   "source": "Frontiers in Public Health (via PubMed Central)",
+   "date_display": "2025 Jan 7",
+   "date": "2025-01-07",
+   "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11752891/",
+   "type": "research",
+   "summary": "Using US national survey data, researchers found about one in six young adults aged 18–26 reported high financial stress, which was associated with a much higher risk of psychological distress."
+  },
+  {
+   "id": "a20",
+   "dimension": "financial",
+   "title": "Household indebtedness and well-being: Evidence from Australia",
+   "source": "PLOS ONE",
+   "date_display": "December 17, 2025",
+   "date": "2025-12-17",
+   "url": "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0337006",
+   "type": "research",
+   "summary": "Using Australian household survey data, this study found that higher credit-card debt relative to income was associated with lower health satisfaction and mental health scores. Mortgage-repayment stress was also linked to lower mental health."
+  }
+ ]
+}

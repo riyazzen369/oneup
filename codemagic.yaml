@@ -1,0 +1,106 @@
+# Codemagic CI for OneUp. Docs: https://docs.codemagic.io/yaml-quick-start/building-a-flutter-app/
+#
+# One-time setup in the Codemagic UI (see IOS_SETUP.md):
+#   1. Environment group "app_store_credentials" with (mark Secure):
+#        APP_STORE_CONNECT_ISSUER_ID, APP_STORE_CONNECT_KEY_IDENTIFIER,
+#        APP_STORE_CONNECT_PRIVATE_KEY (full contents of the .p8 file)
+#   2. Team settings > codemagic.yaml settings > Code signing identities:
+#        an Apple Distribution certificate + an App Store provisioning profile for in.stellarone.oneup
+#   3. Set APP_STORE_APPLE_ID below to the numeric Apple ID of the app (App Store Connect > App Information).
+#
+# Supabase keys are intentionally empty => the app runs in demo mode. The AI key is never in the app.
+
+workflows:
+  ios-testflight:
+    name: iOS -> TestFlight
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    environment:
+      flutter: 3.24.5
+      xcode: latest
+      cocoapods: default
+      groups:
+        - app_store_credentials
+      vars:
+        BUNDLE_ID: in.stellarone.oneup
+        APP_STORE_APPLE_ID: 0000000000 # TODO: replace with the app's numeric Apple ID
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: in.stellarone.oneup
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: true
+      cancel_previous_builds: true
+    scripts:
+      - name: Flutter packages
+        script: flutter pub get
+      - name: Analyze and test
+        script: |
+          flutter analyze
+          flutter test
+      - name: Install pods
+        script: |
+          cd ios
+          pod install --repo-update
+      - name: Apply signing profiles to Xcode project
+        script: xcode-project use-profiles
+      - name: Build IPA
+        script: |
+          LATEST=$(app-store-connect get-latest-testflight-build-number "$APP_STORE_APPLE_ID" || echo 0)
+          BUILD_NUMBER=$((LATEST + 1))
+          echo "Using build number $BUILD_NUMBER"
+          flutter build ipa --release \
+            --build-number=$BUILD_NUMBER \
+            --export-options-plist=/Users/builder/export_options.plist \
+            --dart-define=SUPABASE_URL= \
+            --dart-define=SUPABASE_ANON_KEY= \
+            --dart-define=GOOGLE_WEB_CLIENT_ID=
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - flutter_drive.log
+    publishing:
+      app_store_connect:
+        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+        submit_to_testflight: true
+        # beta_groups:          # optional: external tester group names (needs Beta App Review)
+        #   - Friends
+        submit_to_app_store: false
+
+  # Optional: Android release APK. Signing uses the SAME keystore as local builds,
+  # uploaded to Codemagic (Code signing identities > Android keystores, reference "oneup_keystore").
+  # The .jks is never committed to git.
+  android-apk:
+    name: Android APK (optional)
+    max_build_duration: 45
+    instance_type: mac_mini_m2
+    environment:
+      flutter: 3.24.5
+      java: 17
+      android_signing:
+        - oneup_keystore
+    triggering:
+      events:
+        - tag
+    scripts:
+      - name: Flutter packages
+        script: flutter pub get
+      - name: Write key.properties from Codemagic keystore
+        script: |
+          cat > "$CM_BUILD_DIR/android/key.properties" <<PROPS
+          storePassword=$CM_KEYSTORE_PASSWORD
+          keyPassword=$CM_KEY_PASSWORD
+          keyAlias=$CM_KEY_ALIAS
+          storeFile=$CM_KEYSTORE_PATH
+          PROPS
+      - name: Build APK
+        script: |
+          flutter build apk --release --target-platform android-arm64 \
+            --dart-define=SUPABASE_URL= --dart-define=SUPABASE_ANON_KEY= --dart-define=GOOGLE_WEB_CLIENT_ID=
+    artifacts:
+      - build/app/outputs/flutter-apk/*.apk
