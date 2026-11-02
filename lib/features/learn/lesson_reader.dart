@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../activity/activity.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/router/nav.dart';
 import '../../core/services/haptics.dart';
@@ -219,6 +220,10 @@ class _LessonReaderState extends ConsumerState<LessonReader> {
         onPressed: () {
           done ? Haptics.light() : Haptics.success();
           ref.read(learnProgressProvider.notifier).setDone(lesson.id, !done);
+          final act = ref.read(activityProvider.notifier);
+          for (final d in lesson.dimensions) {
+            done ? act.unlog(lessonRef(lesson.id, d)) : act.log(d, ActivityKind.lesson, lessonRef(lesson.id, d));
+          }
         },
         icon: Icon(done ? Icons.check_circle_rounded : Icons.check_rounded),
         label: Text(done ? 'Completed · tap to undo' : 'Mark complete'),

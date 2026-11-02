@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:math' as math;
+import '../activity/activity.dart';
 import '../../core/services/haptics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -205,7 +207,7 @@ class _HeroCard extends StatelessWidget {
     return Column(children: [
       Text('Overall wellness', style: t.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
       const SizedBox(height: 8),
-      LayoutBuilder(builder: (_, c) => _GlowWheel(scores: wheel, estimated: estimated, overall: overall, size: c.maxWidth - 24)),
+      _LivingWheel(scores: wheel, estimated: estimated, overall: overall),
       if (estimated.isNotEmpty) ...[
         const SizedBox(height: 6),
         Text('Lighter dashed segments are Quick Check estimates',
@@ -234,10 +236,103 @@ class _HeroCard extends StatelessWidget {
   }
 }
 
+/// Living wheel: slices glow and grow with this week's ritual steps, lessons and games (visual only,
+/// scores unchanged). A fresh boost pulses its slice once and shows a short "Social +1" badge.
+class _LivingWheel extends ConsumerStatefulWidget {
+  const _LivingWheel({required this.scores, required this.estimated, required this.overall});
+  final Map<WellnessDimension, int> scores;
+  final Set<WellnessDimension> estimated;
+  final int? overall;
+  @override
+  ConsumerState<_LivingWheel> createState() => _LivingWheelState();
+}
+
+class _LivingWheelState extends ConsumerState<_LivingWheel> {
+  String? _celebrated;
+  WellnessDimension? _pulse, _badge;
+  Timer? _hide;
+
+  @override
+  void dispose() {
+    _hide?.cancel();
+    super.dispose();
+  }
+
+  void _celebrate(ActivityEvent e) {
+    _celebrated = e.ref;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      setState(() => _pulse = _badge = e.dimension);
+      _hide?.cancel();
+      _hide = Timer(const Duration(milliseconds: 2600), () {
+        if (mounted) setState(() => _badge = null);
+      });
+      ref.read(activityProvider.notifier).markSeen();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context);
+    final a = ref.watch(activityProvider);
+    final glow = activityGlow(a.events, ref.read(activityProvider.notifier).now());
+    final u = a.unseen;
+    // Only celebrate while Home is actually on screen.
+    if (u != null && u.ref != _celebrated && (ModalRoute.of(context)?.isCurrent ?? true)) _celebrate(u);
+    final b = _badge;
+    return Column(children: [
+      Stack(alignment: Alignment.topCenter, clipBehavior: Clip.none, children: [
+        LayoutBuilder(
+            builder: (_, c) => _GlowWheel(
+                scores: widget.scores,
+                estimated: widget.estimated,
+                overall: widget.overall,
+                glow: glow,
+                pulse: _pulse,
+                size: c.maxWidth - 24)),
+        Positioned(
+          top: 0,
+          child: IgnorePointer(
+            child: AnimatedSwitcher(
+              duration: motion(context, const Duration(milliseconds: 300)),
+              transitionBuilder: (w, an) =>
+                  FadeTransition(opacity: an, child: ScaleTransition(scale: Tween(begin: 0.8, end: 1.0).animate(an), child: w)),
+              child: b == null
+                  ? const SizedBox.shrink()
+                  : Container(
+                      key: const Key('wheel-boost-badge'),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: b.color(t.brightness),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [BoxShadow(color: b.color(t.brightness).withOpacity(0.5), blurRadius: 14)],
+                      ),
+                      child: Row(mainAxisSize: MainAxisSize.min, children: [
+                        Icon(b.icon, size: 16, color: Colors.white),
+                        const SizedBox(width: 6),
+                        Text('${b.label} +1', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
+                      ]),
+                    ),
+            ),
+          ),
+        ),
+      ]),
+      if (glow.isNotEmpty) ...[
+        const SizedBox(height: 6),
+        Text('Glowing slices show your activity this week',
+            key: const Key('home-activity-legend'), style: t.textTheme.bodySmall?.copyWith(color: t.colorScheme.onSurfaceVariant)),
+      ],
+    ]);
+  }
+}
+
 /// Larger mini wheel with soft glow, slow sway + pulse; segments are tappable.
 class _GlowWheel extends StatefulWidget {
-  const _GlowWheel({required this.scores, required this.overall, required this.size, this.estimated = const {}});
+  const _GlowWheel(
+      {required this.scores, required this.overall, required this.size, this.estimated = const {}, this.glow = const {}, this.pulse});
   final Map<WellnessDimension, int> scores;
+  final Map<WellnessDimension, double> glow;
+  final WellnessDimension? pulse;
   final Set<WellnessDimension> estimated;
   final int? overall;
   final double size;
@@ -293,6 +388,8 @@ class _GlowWheelState extends State<_GlowWheel> with SingleTickerProviderStateMi
           scores: widget.scores,
           overall: widget.overall,
           estimated: widget.estimated,
+          glow: widget.glow,
+          pulse: widget.pulse,
           size: size,
           onTapDimension: Haptics.pick((d) => context.push('/results/dim/${d.name}')),
         ),

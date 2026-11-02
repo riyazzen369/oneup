@@ -2,6 +2,7 @@ import '../../core/router/nav.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../activity/activity.dart';
 
 import '../../core/services/haptics.dart';
 import '../../core/widgets/fx.dart';
@@ -84,6 +85,8 @@ class _ArcadeScreenState extends ConsumerState<ArcadeScreen> with SingleTickerPr
   Future<void> _finish() async {
     _ticker.stop();
     setState(() => _phase = _Phase.over);
+    final act = ref.read(activityProvider.notifier);
+    act.log(widget.info.dimension, ActivityKind.game, gameRef(widget.info.id, act.now()));
     _newBest = await ref.read(gameScoresProvider.notifier).record(widget.info.id, _g.score);
     Haptics.success();
     if (mounted) setState(() {});

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../ritual/ritual_reminders.dart';
 import '../ritual/ritual_settings.dart';
+import '../activity/activity.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/router/app_router.dart';
@@ -137,6 +138,7 @@ Future<void> deleteMyData(WidgetRef ref) async {
   ref.invalidate(readingPositionsProvider);
   ref.invalidate(quickCheckProvider);
   ref.invalidate(ritualProvider);
+  ref.invalidate(activityProvider);
   await ref.read(ritualRemindersProvider).cancelAll();
   ref.invalidate(ritualSettingsProvider);
   ref.read(pendingRitualPopupProvider.notifier).state = false;

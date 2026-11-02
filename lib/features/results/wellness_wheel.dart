@@ -15,8 +15,16 @@ class WellnessWheel extends StatefulWidget {
     this.onTapDimension,
     this.labelFontFamily,
     this.estimated = const {},
+    this.glow = const {},
+    this.pulse,
   });
   final Map<WellnessDimension, int> scores;
+
+  /// Living wheel: recent-activity glow 0..1 per dimension (visual only; scores are untouched).
+  final Map<WellnessDimension, double> glow;
+
+  /// Dimension just boosted: its slice pulses a few times. Change it to replay.
+  final WellnessDimension? pulse;
   final int? overall;
   final double size;
   final bool showLabels;
@@ -32,8 +40,15 @@ class WellnessWheel extends StatefulWidget {
   State<WellnessWheel> createState() => _WellnessWheelState();
 }
 
-class _WellnessWheelState extends State<WellnessWheel> with SingleTickerProviderStateMixin {
+class _WellnessWheelState extends State<WellnessWheel> with TickerProviderStateMixin {
   late final _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 1400))..forward();
+  late final _p = AnimationController(vsync: this, duration: const Duration(milliseconds: 2400));
+  late final _both = Listenable.merge([_c, _p]);
+
+  void _startPulse() {
+    if (widget.pulse == null || reducedMotion(context)) return;
+    _p.forward(from: 0);
+  }
 
   @override
   void didChangeDependencies() {
@@ -41,6 +56,8 @@ class _WellnessWheelState extends State<WellnessWheel> with SingleTickerProvider
     if (reducedMotion(context)) {
       _c.stop();
       _c.value = 1; // show final state, no animation
+    } else if (widget.pulse != null && !_p.isAnimating && _p.value == 0) {
+      _startPulse();
     }
   }
 
@@ -48,11 +65,13 @@ class _WellnessWheelState extends State<WellnessWheel> with SingleTickerProvider
   void didUpdateWidget(WellnessWheel old) {
     super.didUpdateWidget(old);
     if (old.scores.toString() != widget.scores.toString() && !reducedMotion(context)) _c.forward(from: 0);
+    if (widget.pulse != null && widget.pulse != old.pulse) _startPulse();
   }
 
   @override
   void dispose() {
     _c.dispose();
+    _p.dispose();
     super.dispose();
   }
 
@@ -72,7 +91,8 @@ class _WellnessWheelState extends State<WellnessWheel> with SingleTickerProvider
     final t = Theme.of(context);
     final summary = [
       for (final d in WellnessDimension.values)
-        '${d.label} ${widget.scores[d]?.toString() ?? "not assessed"}${widget.estimated.contains(d) ? " (quick estimate)" : ""}',
+        '${d.label} ${widget.scores[d]?.toString() ?? "not assessed"}${widget.estimated.contains(d) ? " (quick estimate)" : ""}'
+            '${(widget.glow[d] ?? 0) > 0 ? " (recent activity)" : ""}',
     ].join(', ');
     return Semantics(
       label: 'Wellness wheel. ${widget.overall == null ? "" : "Overall ${widget.overall}. "}$summary',
@@ -80,7 +100,7 @@ class _WellnessWheelState extends State<WellnessWheel> with SingleTickerProvider
         onTapUp: _tap,
         child: RepaintBoundary(
           child: AnimatedBuilder(
-            animation: _c,
+            animation: _both,
             builder: (_, __) => CustomPaint(
               size: Size.square(widget.size),
               painter: _WheelPainter(
@@ -94,6 +114,10 @@ class _WellnessWheelState extends State<WellnessWheel> with SingleTickerProvider
                 textScale: MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 1.3),
                 fontFamily: widget.labelFontFamily ?? t.textTheme.bodyMedium?.fontFamily,
                 estimated: widget.estimated,
+                glow: widget.glow,
+                pulse: widget.pulse,
+                // Three soft beats that fade out.
+                pulseT: _p.isAnimating ? math.sin(_p.value * 3 * math.pi).abs() * (1 - _p.value) : 0,
               ),
             ),
           ),
@@ -115,8 +139,14 @@ class _WheelPainter extends CustomPainter {
     required this.textScale,
     this.fontFamily,
     this.estimated = const {},
+    this.glow = const {},
+    this.pulse,
+    this.pulseT = 0,
   });
   final Set<WellnessDimension> estimated;
+  final Map<WellnessDimension, double> glow;
+  final WellnessDimension? pulse;
+  final double pulseT;
   final Map<WellnessDimension, int> scores;
   final int? overall;
   final double progress;
@@ -141,8 +171,25 @@ class _WheelPainter extends CustomPainter {
       final start = -math.pi / 2 + i * seg + gap / 2;
       const sweep = seg - gap;
       final color = d.color(brightness);
+      final mid0 = start + sweep / 2;
+      final g = ((glow[d] ?? 0) + (d == pulse ? pulseT * 0.8 : 0)).clamp(0.0, 1.6);
+      canvas.save();
+      if (g > 0) {
+        // Grow: nudge the slice outward a few px, then halo its outer edge.
+        canvas.translate(math.cos(mid0) * 5 * k * g, math.sin(mid0) * 5 * k * g);
+        canvas.drawArc(
+            Rect.fromCircle(center: c, radius: outer - 3),
+            start,
+            sweep,
+            false,
+            Paint()
+              ..color = color.withOpacity((0.35 + 0.4 * g).clamp(0.0, 1.0))
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = (5 + 7 * g) * k
+              ..maskFilter = MaskFilter.blur(BlurStyle.normal, (4 + 6 * g) * k));
+      }
       // Track
-      _wedge(canvas, c, inner, outer, start, sweep, Paint()..color = color.withOpacity(0.16));
+      _wedge(canvas, c, inner, outer, start, sweep, Paint()..color = color.withOpacity(0.16 + 0.14 * g.clamp(0.0, 1.0)));
       // Fill (staggered per segment)
       final local = ((progress * 1.4) - i * 0.05).clamp(0.0, 1.0);
       final s = scores[d];
@@ -186,6 +233,7 @@ class _WheelPainter extends CustomPainter {
               TextStyle(fontFamily: fontFamily, fontSize: 8 * k * textScale, fontStyle: FontStyle.italic, color: onSeg.withOpacity(0.8)));
         }
       }
+      canvas.restore();
     }
     // Centre
     canvas.drawCircle(c, inner - 4, Paint()..color = surface);
@@ -223,5 +271,12 @@ class _WheelPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_WheelPainter o) =>
-      o.progress != progress || o.scores != scores || o.brightness != brightness || o.overall != overall || o.estimated != estimated;
+      o.progress != progress ||
+      o.scores != scores ||
+      o.brightness != brightness ||
+      o.overall != overall ||
+      o.estimated != estimated ||
+      o.glow != glow ||
+      o.pulse != pulse ||
+      o.pulseT != pulseT;
 }

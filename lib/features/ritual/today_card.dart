@@ -10,6 +10,7 @@ import '../../core/widgets/fx.dart';
 import '../assess/domain/assessment_controller.dart';
 import '../quick/quick_check.dart';
 import 'ritual.dart';
+import '../activity/activity.dart';
 
 /// Home "Today" card: 10-second mood check-in, one micro-task, streak + 7-day mood strip.
 class TodayCard extends ConsumerWidget {
@@ -59,6 +60,8 @@ class TodayCard extends ConsumerWidget {
               activeColor: color,
               onChanged: (_) {
                 today.done ? Haptics.selection() : Haptics.success();
+                final act = ref.read(activityProvider.notifier);
+                today.done ? act.unlog(ritualRef(now)) : act.log(dim, ActivityKind.ritual, ritualRef(now));
                 ctl.toggleDone();
               },
             ),
