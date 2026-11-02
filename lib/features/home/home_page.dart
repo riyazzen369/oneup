@@ -30,6 +30,7 @@ import '../ritual/ritual_popup.dart';
 import '../ritual/ritual_settings.dart';
 import '../quick/quick_check.dart';
 import '../quick/quick_check_screen.dart';
+import '../referral/referral_ui.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -186,6 +187,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     ),
                   ),
                 const SizedBox(height: 20),
+                StaggerIn(index: i++, child: const InviteHomeCard()),
                 StaggerIn(index: i++, child: const PlusHomeBanner()),
                 const SizedBox(height: 12),
                 StaggerIn(index: i++, child: const ArticlesSection()),

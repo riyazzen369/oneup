@@ -12,6 +12,7 @@ import '../../core/services/haptics.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/fx.dart';
 import 'weekly_report.dart';
+import 'package:go_router/go_router.dart';
 
 const _months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 String _d(DateTime d) => '${_months[d.month - 1]} ${d.day}';
@@ -199,6 +200,13 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
                         icon: const Icon(Icons.ios_share_rounded),
                         label: const Text('Share this page'),
                       ),
+                    ),
+                    IconButton(
+                      key: const Key('report-invite'),
+                      color: Colors.white,
+                      tooltip: 'Invite a friend',
+                      onPressed: () => context.push('/invite'),
+                      icon: const Icon(Icons.group_add_rounded),
                     ),
                     IconButton(
                       key: const Key('report-next'),

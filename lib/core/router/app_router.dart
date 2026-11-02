@@ -49,6 +49,7 @@ import '../../features/consult/ui/my_sessions_screen.dart';
 import '../../features/consult/ui/call_screen.dart';
 import '../../features/companion/ui/companion_screen.dart';
 import '../safety/crisis_screen.dart';
+import '../../features/referral/referral_ui.dart';
 
 class Routes {
   static const splash = '/';
@@ -114,6 +115,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: '/report', builder: (_, s) => ReportScreen(weekId: s.uri.queryParameters['week'])),
       GoRoute(path: '/plus', builder: (_, __) => const PlusScreen()),
+      GoRoute(path: '/invite', builder: (_, __) => const InviteScreen()),
       GoRoute(path: '/privacy', builder: (_, __) => const PrivacyScreen()),
       GoRoute(path: '/experts', builder: (_, __) => const ExpertsScreen()),
       GoRoute(path: '/org', builder: (_, __) => const OrgDashboardScreen()),

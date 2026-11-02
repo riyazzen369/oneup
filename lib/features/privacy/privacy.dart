@@ -44,6 +44,7 @@ const dataInventory = <DataItem>[
   DataItem('Coaching / support requests (demo)', 'plus_requests_v1', _list),
   DataItem('Content issue reports', 'content_feedback_v1', _list),
   DataItem('OneUP Plus status (demo)', 'plus_entitlement_v1', _one),
+  DataItem('Invite code & challenge (demo)', 'referral_v1', _one),
   DataItem('Company team membership', 'org_membership_v1', _one),
   DataItem('Profile details', 'demo_profile_v1', _one),
   DataItem('Profile photo', 'avatar_v1', _one, note: 'AES-256-GCM encrypted'),

@@ -32,6 +32,8 @@ import 'data/profile_repository.dart';
 import 'domain/user_profile.dart';
 import 'ui/profile_avatar.dart';
 import '../../core/widgets/fx.dart';
+import '../referral/referral.dart';
+import '../referral/referral_ui.dart';
 
 /// Profile: details header (photo, name, contact, completeness) above the settings.
 class ProfilePage extends ConsumerWidget {
@@ -48,6 +50,25 @@ class ProfilePage extends ConsumerWidget {
         const SizedBox(height: 8),
         const PlusProfileCard(),
         const OrgProfileCard(),
+        Card(
+          child: ListTile(
+            key: const Key('profile-invite'),
+            leading: const Icon(Icons.group_add_rounded),
+            title: const Text('Invite friends'),
+            subtitle: const Text('You both get 1 week of OneUP Plus · challenges'),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => context.push('/invite'),
+          ),
+        ),
+        Card(
+          child: ListTile(
+            key: const Key('profile-redeem'),
+            leading: const Icon(Icons.redeem_rounded),
+            title: const Text('Have an invite code?'),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => showRedeemSheet(context),
+          ),
+        ),
         Card(
           child: ListTile(
             key: const Key('profile-privacy'),
@@ -173,6 +194,7 @@ Future<void> deleteMyData(WidgetRef ref) async {
   ref.invalidate(orgProvider);
   ref.invalidate(contentFeedbackProvider);
   ref.invalidate(serviceRequestsProvider);
+  ref.invalidate(referralProvider);
   ref.read(pendingReportProvider.notifier).state = false;
   await ref.read(ritualRemindersProvider).cancelAll();
   ref.invalidate(ritualSettingsProvider);

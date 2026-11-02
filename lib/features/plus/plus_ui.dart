@@ -8,6 +8,7 @@ import '../../core/widgets/fx.dart';
 import '../results/dimension_detail_screen.dart' show fmtDate;
 import '../org/org.dart';
 import 'entitlement.dart';
+import '../referral/referral_ui.dart';
 
 /// Plus brand accent: fluorescent lime → neon cyan. Always pair with [plusInk] text for contrast.
 const plusLime = Color(0xFFC6FF00), plusCyan = Color(0xFF00F0FF), plusInk = Color(0xFF07140F);
@@ -527,6 +528,8 @@ class PlusScreen extends ConsumerWidget {
               key: const Key('plus-screen-cancel'), onPressed: () => confirmCancelPlus(context, ref), child: const Text('Cancel Plus')),
           const SizedBox(height: 20),
         ],
+        const InvitePlusCta(),
+        const SizedBox(height: 20),
         Row(key: const Key('plus-pricing'), crossAxisAlignment: CrossAxisAlignment.start, children: [
           price(PlusPlan.monthly, 'Monthly', 'SAMPLE ${rupees(sampleMonthlyRupees)}', 'per month [VERIFY]'),
           const SizedBox(width: 12),
