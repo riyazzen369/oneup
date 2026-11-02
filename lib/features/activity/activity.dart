@@ -32,6 +32,9 @@ class ActivityEvent {
 
 const glowWindow = Duration(days: 7);
 
+/// Events are kept a little longer than the glow so the weekly report can still read last week.
+const keepWindow = Duration(days: 21);
+
 /// Glow 0..1 per dimension: each event adds weight that fades linearly to zero over 7 days;
 /// three fresh events saturate a slice.
 Map<WellnessDimension, double> activityGlow(List<ActivityEvent> events, DateTime now) {

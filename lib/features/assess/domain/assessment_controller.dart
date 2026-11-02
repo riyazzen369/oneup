@@ -59,19 +59,24 @@ final assessmentProvider = StateNotifierProvider<AssessmentController, AssessSta
 
 class AssessmentController extends StateNotifier<AssessState> {
   AssessmentController(this._repo, this._crypto) : super(AssessState(cycleStart: DateTime.fromMillisecondsSinceEpoch(0), loading: true)) {
-    _load();
+    ready = _loadLocal();
+    ready.then((_) {
+      if (mounted) refreshFromRemote();
+    });
   }
   final AssessmentRepository _repo;
   final AnswerCrypto _crypto;
 
-  Future<void> _load() async {
-    state = AssessState(
-      drafts: await _repo.loadDrafts(),
-      attempts: await _repo.loadAttempts(),
-      cycleStart: await _repo.loadCycleStart(),
-      goals: await _repo.loadGoals(),
-    );
-    await refreshFromRemote();
+  /// Completes once on-device history is loaded (remote refresh continues in the background).
+  late final Future<void> ready;
+
+  Future<void> _loadLocal() async {
+    final drafts = await _repo.loadDrafts();
+    final attempts = await _repo.loadAttempts();
+    final cycleStart = await _repo.loadCycleStart();
+    final goals = await _repo.loadGoals();
+    if (!mounted) return;
+    state = AssessState(drafts: drafts, attempts: attempts, cycleStart: cycleStart, goals: goals);
   }
 
   /// Restores history + goals from Supabase (reinstall / new phone) and merges with local.

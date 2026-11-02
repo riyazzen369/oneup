@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../ritual/ritual_reminders.dart';
 import '../ritual/ritual_settings.dart';
 import '../activity/activity.dart';
+import '../report/weekly_report.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/router/app_router.dart';
@@ -139,6 +140,8 @@ Future<void> deleteMyData(WidgetRef ref) async {
   ref.invalidate(quickCheckProvider);
   ref.invalidate(ritualProvider);
   ref.invalidate(activityProvider);
+  ref.invalidate(reportsProvider);
+  ref.read(pendingReportProvider.notifier).state = false;
   await ref.read(ritualRemindersProvider).cancelAll();
   ref.invalidate(ritualSettingsProvider);
   ref.read(pendingRitualPopupProvider.notifier).state = false;
@@ -229,6 +232,18 @@ class _RitualSettingsCard extends ConsumerWidget {
           onChanged: (v) async {
             Haptics.selection();
             await ctl.update((x) => x.copyWith(notify: v, permissionAsked: v ? true : null));
+            if (v) await ref.read(ritualRemindersProvider).requestPermission();
+          },
+        ),
+        SwitchListTile(
+          key: const Key('weekly-notify-toggle'),
+          secondary: const Icon(Icons.auto_stories_outlined),
+          title: const Text('Weekly report reminder'),
+          subtitle: const Text('Sundays at 7 PM, when your week is ready'),
+          value: s.weekly,
+          onChanged: (v) async {
+            Haptics.selection();
+            await ctl.update((x) => x.copyWith(weekly: v, permissionAsked: v ? true : null));
             if (v) await ref.read(ritualRemindersProvider).requestPermission();
           },
         ),

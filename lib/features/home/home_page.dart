@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math' as math;
 import '../activity/activity.dart';
+import '../report/report_card.dart';
+import '../report/weekly_report.dart';
 import '../../core/services/haptics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -47,6 +49,12 @@ class _HomePageState extends ConsumerState<HomePage> {
     final welcomed = await maybeShowWelcome(context, ref);
     if (!mounted) return;
     syncRitualReminders(ref);
+    ref.read(reportsProvider.notifier).refresh();
+    if (ref.read(pendingReportProvider)) {
+      ref.read(pendingReportProvider.notifier).state = false;
+      context.push('/report');
+      return;
+    }
     final pending = ref.read(pendingRitualPopupProvider);
     if (pending) ref.read(pendingRitualPopupProvider.notifier).state = false;
     // Never stack the daily pop-up on the first-run welcome or over another screen (e.g. crisis).
@@ -58,6 +66,11 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget build(BuildContext context) {
     final s = ref.watch(assessmentProvider);
     final t = Theme.of(context);
+    ref.listen<bool>(pendingReportProvider, (_, next) {
+      if (!next) return;
+      ref.read(pendingReportProvider.notifier).state = false;
+      context.push('/report');
+    });
     // Reminder tapped while the app is open: open the ritual pop-up.
     ref.listen<bool>(pendingRitualPopupProvider, (_, next) {
       if (!next) return;
@@ -102,6 +115,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 const SizedBox(height: 14),
                 StaggerIn(index: i++, child: const TodayCard()),
                 const SizedBox(height: 14),
+                StaggerIn(index: i++, child: const WeeklyReportCard()),
                 StaggerIn(index: i++, child: _QuickCheckCard(hasFull: latest.isNotEmpty, hasQuick: quick != null)),
                 const SizedBox(height: 14),
                 StaggerIn(index: i++, child: _TrendsCard(scores: latest, goals: s.goals)),
@@ -362,6 +376,19 @@ class _GlowWheelState extends State<_GlowWheel> with SingleTickerProviderStateMi
       _scroll = n?..addListener(_sync);
     }
     _sync();
+  }
+
+  // Lazy lists deactivate (and may re-activate) the wheel when it scrolls far off screen.
+  @override
+  void deactivate() {
+    _scroll?.removeListener(_sync);
+    super.deactivate();
+  }
+
+  @override
+  void activate() {
+    super.activate();
+    _scroll?.addListener(_sync);
   }
 
   @override

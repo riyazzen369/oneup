@@ -6,25 +6,32 @@ import '../../core/services/secure_store.dart';
 
 /// Daily ritual preferences (pop-up + reminder). Stored in secure storage, so delete-my-data resets them.
 class RitualSettings {
-  const RitualSettings({this.popup = true, this.notify = true, this.hour = 9, this.minute = 0, this.permissionAsked = false});
+  const RitualSettings(
+      {this.popup = true, this.notify = true, this.hour = 9, this.minute = 0, this.permissionAsked = false, this.weekly = true});
   final bool popup, notify, permissionAsked;
+
+  /// Sunday-evening weekly report reminder.
+  final bool weekly;
   final int hour, minute;
 
-  RitualSettings copyWith({bool? popup, bool? notify, int? hour, int? minute, bool? permissionAsked}) => RitualSettings(
+  RitualSettings copyWith({bool? popup, bool? notify, int? hour, int? minute, bool? permissionAsked, bool? weekly}) => RitualSettings(
         popup: popup ?? this.popup,
         notify: notify ?? this.notify,
         hour: hour ?? this.hour,
         minute: minute ?? this.minute,
         permissionAsked: permissionAsked ?? this.permissionAsked,
+        weekly: weekly ?? this.weekly,
       );
 
-  Map<String, dynamic> toJson() => {'popup': popup, 'notify': notify, 'hour': hour, 'minute': minute, 'asked': permissionAsked};
+  Map<String, dynamic> toJson() =>
+      {'popup': popup, 'notify': notify, 'hour': hour, 'minute': minute, 'asked': permissionAsked, 'weekly': weekly};
   factory RitualSettings.fromJson(Map<String, dynamic> j) => RitualSettings(
         popup: j['popup'] as bool? ?? true,
         notify: j['notify'] as bool? ?? true,
         hour: j['hour'] as int? ?? 9,
         minute: j['minute'] as int? ?? 0,
         permissionAsked: j['asked'] as bool? ?? false,
+        weekly: j['weekly'] as bool? ?? true,
       );
 }
 
@@ -56,3 +63,6 @@ final ritualSettingsProvider =
 
 /// Set when the user taps the daily reminder; Home opens the ritual pop-up and clears it.
 final pendingRitualPopupProvider = StateProvider<bool>((ref) => false);
+
+/// Set when the user taps the weekly report reminder; Home opens the report and clears it.
+final pendingReportProvider = StateProvider<bool>((ref) => false);

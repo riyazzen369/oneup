@@ -29,12 +29,15 @@ Future<void> syncRitualReminders(WidgetRef ref, {bool askPermission = false}) as
   final now = ref.read(ritualProvider.notifier).now();
   final full = ref.read(assessmentProvider).latest;
   final quick = ref.read(quickCheckProvider).latest?.scores;
-  await reminders.replaceAll(planReminders(
-    now: now,
-    settings: s,
-    todayComplete: ritualComplete(ritual.on(now)),
-    dimensionFor: (d) => ritualDimension(full, quick, d),
-  ));
+  await reminders.replaceAll([
+    ...planReminders(
+      now: now,
+      settings: s,
+      todayComplete: ritualComplete(ritual.on(now)),
+      dimensionFor: (d) => ritualDimension(full, quick, d),
+    ),
+    ...planWeeklyReminders(now: now, settings: s),
+  ]);
 }
 
 /// Once per local day on Home: skipped when turned off, in crisis mode, or today's ritual is complete.

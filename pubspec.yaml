@@ -21,6 +21,7 @@ dependencies:
   flutter_displaymode: ^0.6.0
   flutter_local_notifications: ^17.2.4
   timezone: ^0.9.4
+  share_plus: ^10.1.4
 
 dev_dependencies:
   flutter_test:

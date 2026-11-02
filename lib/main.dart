@@ -22,8 +22,12 @@ Future<void> main() async {
   }
   final container = ProviderContainer();
   // Daily ritual reminder: tapping it opens Home with the ritual pop-up.
-  container.read(ritualRemindersProvider).init(() {
-    container.read(pendingRitualPopupProvider.notifier).state = true;
+  container.read(ritualRemindersProvider).init((payload) {
+    if (payload == weeklyPayload) {
+      container.read(pendingReportProvider.notifier).state = true;
+    } else {
+      container.read(pendingRitualPopupProvider.notifier).state = true;
+    }
     container.read(routerProvider).go(Routes.home);
   });
   runApp(UncontrolledProviderScope(container: container, child: const OneUpApp()));

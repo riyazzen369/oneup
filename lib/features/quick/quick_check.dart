@@ -95,6 +95,7 @@ class QuickCheckController extends StateNotifier<QuickCheckState> {
   }
   final QuickCheckRepository _repo;
   late final Future<void> _ready;
+  Future<void> get ready => _ready;
 
   /// [values] are raw 1–10 slider values; returns the saved snapshot (0–100 scores).
   Future<QuickSnapshot> submit(Map<WellnessDimension, int> values, {DateTime? now}) async {
