@@ -1,3 +1,5 @@
+import '../plus/entitlement.dart';
+import '../plus/plus_ui.dart';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -54,7 +56,10 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
     super.dispose();
   }
 
-  WeeklyReport? _pick(ReportsState s) => (_week == null ? null : s.reports.where((r) => r.id == _week).firstOrNull) ?? s.latest;
+  WeeklyReport? _pick(ReportsState s) {
+    final open = ref.read(isPlusProvider) ? s.reports : s.reports.take(freeReportWeeks);
+    return (_week == null ? null : open.where((r) => r.id == _week).firstOrNull) ?? s.latest;
+  }
 
   Future<void> _share(WeeklyReport r) async {
     final ok = await showDialog<bool>(
@@ -85,21 +90,34 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
       showDragHandle: true,
       builder: (c) => ListView(shrinkWrap: true, children: [
         const Padding(padding: EdgeInsets.fromLTRB(16, 0, 16, 8), child: Text('Past weeks', style: TextStyle(fontWeight: FontWeight.w700))),
-        for (final r in s.reports)
-          ListTile(
-            key: Key('week-${r.id}'),
-            leading: const Icon(Icons.calendar_month_rounded),
-            title: Text(weekLabel(r)),
-            subtitle: Text(r.isEmpty ? 'A quiet week' : '${r.ritualsDone} small steps · ${r.checkIns} check-ins'),
-            onTap: () {
-              Navigator.pop(c);
-              setState(() {
-                _week = r.id;
-                _page = 0;
-              });
-              _pc.jumpToPage(0);
-            },
-          ),
+        for (final (i, r) in s.reports.indexed)
+          if (i >= freeReportWeeks && !ref.read(isPlusProvider))
+            ListTile(
+              key: Key('week-${r.id}'),
+              leading: const Icon(Icons.lock_outline_rounded),
+              title: Text(weekLabel(r)),
+              subtitle: const Text('Older weeks are kept for you · open with OneUP Plus'),
+              trailing: const PlusBadge(small: true),
+              onTap: () {
+                Navigator.pop(c);
+                showPlusUpsell(context, PlusFeature.reportHistory);
+              },
+            )
+          else
+            ListTile(
+              key: Key('week-${r.id}'),
+              leading: const Icon(Icons.calendar_month_rounded),
+              title: Text(weekLabel(r)),
+              subtitle: Text(r.isEmpty ? 'A quiet week' : '${r.ritualsDone} small steps · ${r.checkIns} check-ins'),
+              onTap: () {
+                Navigator.pop(c);
+                setState(() {
+                  _week = r.id;
+                  _page = 0;
+                });
+                _pc.jumpToPage(0);
+              },
+            ),
       ]),
     );
   }
@@ -107,6 +125,7 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
   @override
   Widget build(BuildContext context) {
     final s = ref.watch(reportsProvider);
+    ref.watch(isPlusProvider);
     final r = _pick(s);
     final pages = r == null ? <Widget>[] : storyPages(r);
     return Scaffold(

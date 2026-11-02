@@ -1,3 +1,4 @@
+import 'package:oneup/features/plus/entitlement.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -131,6 +132,7 @@ void main() {
     ]);
     await t.pumpWidget(ProviderScope(
       overrides: [
+        isPlusProvider.overrideWithValue(true),
         secureStoreProvider.overrideWithValue(s),
         learnLibraryProvider.overrideWith((_) async => lib()),
         focusDimensionsProvider.overrideWithValue([WellnessDimension.emotional]),

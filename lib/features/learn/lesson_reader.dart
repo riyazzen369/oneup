@@ -8,6 +8,8 @@ import '../../core/services/haptics.dart';
 import '../../core/theme/app_colors.dart';
 import 'learn_repository.dart';
 import 'reader_prefs.dart';
+import '../plus/entitlement.dart';
+import '../plus/plus_ui.dart';
 
 /// Book-style reader: chapter scroll, progress bar, A-/A+, reading themes, resume, complete + next.
 class LessonReader extends ConsumerStatefulWidget {
@@ -125,6 +127,8 @@ class _LessonReaderState extends ConsumerState<LessonReader> {
     final small = t.textTheme.bodyMedium?.copyWith(fontSize: (fs * 0.8).clamp(13, 22), height: 1.5);
     final finance = lesson.dimensions.contains(WellnessDimension.financial);
     final b = lesson.body;
+    // Long reads: first chapter free; the rest is Plus. Sensitive lessons are never locked.
+    final locked = b != null && b.sections.length > 1 && !lesson.sensitive && !ref.watch(isPlusProvider);
 
     Widget para(String s) => Padding(padding: const EdgeInsets.only(bottom: 14), child: Text(s, style: bodyStyle));
     Widget heading(String s, {IconData? icon, Key? key}) => Padding(
@@ -177,7 +181,14 @@ class _LessonReaderState extends ConsumerState<LessonReader> {
       const Divider(height: 32),
       if (b != null) ...[
         para(b.intro),
-        for (final s in b.sections) ...[heading(s.heading), for (final p in s.paragraphs) para(p)],
+        for (final s in locked ? b.sections.take(1) : b.sections) ...[heading(s.heading), for (final p in s.paragraphs) para(p)],
+      ],
+      if (b != null && locked)
+        PlusLockCard(
+            feature: PlusFeature.fullLessons,
+            message: 'You have read the first chapter. The other ${b.sections.length - 1} chapters, the worked example, key takeaways '
+                'and reflection questions are part of OneUP Plus. "Try this" below stays free.'),
+      if (b != null && !locked) ...[
         boxed([
           Text(b.exampleTitle, style: bodyStyle?.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: 8),
@@ -187,7 +198,8 @@ class _LessonReaderState extends ConsumerState<LessonReader> {
         for (final x in b.takeaways) bullet(x),
         heading('Reflect', icon: Icons.self_improvement_rounded),
         for (var i = 0; i < b.reflect.length; i++) bullet(b.reflect[i], mark: '${i + 1}.'),
-      ] else ...[
+      ],
+      if (b == null) ...[
         para('Key idea: ${lesson.idea}'),
         for (final c in lesson.cards) para(c),
       ],

@@ -1,3 +1,4 @@
+import 'package:oneup/features/plus/entitlement.dart';
 import 'dart:math';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
@@ -199,7 +200,7 @@ void main() {
     for (final g in games) {
       await t.pumpWidget(ProviderScope(
         key: UniqueKey(),
-        overrides: [secureStoreProvider.overrideWithValue(MemStore())],
+        overrides: [secureStoreProvider.overrideWithValue(MemStore()), isPlusProvider.overrideWithValue(true)],
         child: MaterialApp(home: gameScreen(g.id)),
       ));
       await t.pump(const Duration(milliseconds: 100));

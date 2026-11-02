@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../plus/entitlement.dart';
+import '../plus/plus_ui.dart';
 import 'arcade.dart';
 import 'arcade_screen.dart';
 import 'catch_games.dart';
@@ -30,5 +33,17 @@ Arcade createGame(String id) => switch (id) {
 
 Widget gameScreen(String id) {
   if (!games.any((g) => g.id == id)) return const Scaffold(body: Center(child: Text('Game not found')));
-  return ArcadeScreen(info: gameById(id), create: () => createGame(id));
+  if (!isPlusGame(id)) return ArcadeScreen(info: gameById(id), create: () => createGame(id));
+  return Consumer(
+    builder: (_, ref, __) => ref.watch(isPlusProvider)
+        ? ArcadeScreen(info: gameById(id), create: () => createGame(id))
+        : Scaffold(
+            appBar: AppBar(title: Text(gameById(id).title)),
+            body: const Padding(
+              padding: EdgeInsets.all(16),
+              child: PlusLockCard(
+                  feature: PlusFeature.extraGames, message: 'This game is one of 8 extras in OneUP Plus. All 8 core games stay free.'),
+            ),
+          ),
+  );
 }

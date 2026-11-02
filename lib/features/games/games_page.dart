@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../core/services/haptics.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/fx.dart';
+import '../plus/entitlement.dart';
+import '../plus/plus_ui.dart';
 import 'game_catalog.dart';
 import 'game_scores.dart';
 
@@ -116,17 +118,18 @@ const _gameIcons = <String, IconData>{
   'coin-run': Icons.directions_run_rounded,
 };
 
-class GameTile extends StatelessWidget {
+class GameTile extends ConsumerWidget {
   const GameTile({super.key, required this.info, this.best});
   final GameInfo info;
   final int? best;
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final t = Theme.of(context);
     final c = info.dimension.color(t.brightness);
+    final locked = isPlusGame(info.id) && !ref.watch(isPlusProvider);
     return PressScale(
-      semanticLabel: '${info.title}, ${info.dimension.label}${best == null ? '' : ', best $best'}',
-      onTap: Haptics.tap(() => context.push('/games/${info.id}')),
+      semanticLabel: '${info.title}, ${info.dimension.label}${locked ? ', OneUP Plus' : best == null ? '' : ', best $best'}',
+      onTap: Haptics.tap(() => locked ? showPlusUpsell(context, PlusFeature.extraGames) : context.push('/games/${info.id}')),
       child: GlassCard(
         padding: const EdgeInsets.all(8),
         radius: 20,
@@ -152,6 +155,7 @@ class GameTile extends StatelessWidget {
                   ),
                 ),
               ),
+              if (locked) Positioned(left: 0, top: 0, child: PlusBadge(key: Key('game-lock-${info.id}'), small: true)),
               Positioned(
                 right: 0,
                 top: 0,

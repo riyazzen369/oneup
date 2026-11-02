@@ -1,3 +1,4 @@
+import '../plus/plus_ui.dart';
 import 'dart:async';
 import 'dart:math' as math;
 import '../activity/activity.dart';
@@ -184,6 +185,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                     ),
                   ),
                 const SizedBox(height: 20),
+                StaggerIn(index: i++, child: const PlusHomeBanner()),
+                const SizedBox(height: 12),
                 StaggerIn(index: i++, child: const ArticlesSection()),
               ])),
             ),

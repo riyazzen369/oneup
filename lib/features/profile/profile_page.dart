@@ -1,3 +1,5 @@
+import '../plus/entitlement.dart';
+import '../plus/plus_ui.dart';
 import '../ritual/ritual.dart';
 import '../quick/quick_check.dart';
 import '../learn/reader_prefs.dart';
@@ -40,6 +42,7 @@ class ProfilePage extends ConsumerWidget {
       body: ListView(padding: const EdgeInsets.all(16), children: [
         const _ProfileHeader(),
         const SizedBox(height: 8),
+        const PlusProfileCard(),
         Card(
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -141,6 +144,7 @@ Future<void> deleteMyData(WidgetRef ref) async {
   ref.invalidate(ritualProvider);
   ref.invalidate(activityProvider);
   ref.invalidate(reportsProvider);
+  ref.invalidate(entitlementProvider);
   ref.read(pendingReportProvider.notifier).state = false;
   await ref.read(ritualRemindersProvider).cancelAll();
   ref.invalidate(ritualSettingsProvider);
