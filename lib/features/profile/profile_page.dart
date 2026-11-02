@@ -1,3 +1,4 @@
+import '../ritual/ritual.dart';
 import '../quick/quick_check.dart';
 import '../learn/reader_prefs.dart';
 import '../games/game_scores.dart';
@@ -132,6 +133,7 @@ Future<void> deleteMyData(WidgetRef ref) async {
   ref.invalidate(readerPrefsProvider);
   ref.invalidate(readingPositionsProvider);
   ref.invalidate(quickCheckProvider);
+  ref.invalidate(ritualProvider);
   ref.read(crisisModeProvider.notifier).state = false;
 }
 

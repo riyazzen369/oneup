@@ -152,10 +152,11 @@ void main() {
     for (var i = 0; i < 20; i++) {
       await t.pump(const Duration(milliseconds: 100));
     }
-    expect(find.byKey(const Key('home-quick-check')), findsOneWidget);
     expect(find.byKey(const Key('home-quick-legend')), findsOneWidget);
     final wheel = t.widget<WellnessWheel>(find.byType(WellnessWheel).first);
     expect(wheel.estimated.length, 8);
     expect(wheel.overall, isNull); // a quick estimate never produces an overall score
+    await t.scrollUntilVisible(find.byKey(const Key('home-quick-check')), 200, scrollable: find.byType(Scrollable).first);
+    expect(find.byKey(const Key('home-quick-check')), findsOneWidget);
   });
 }

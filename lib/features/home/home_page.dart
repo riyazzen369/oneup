@@ -18,6 +18,7 @@ import '../../core/safety/safety_state.dart';
 import '../companion/ui/companion_button.dart';
 import '../articles/ui/articles_ui.dart';
 import 'welcome_dialog.dart';
+import '../ritual/today_card.dart';
 import '../quick/quick_check.dart';
 import '../quick/quick_check_screen.dart';
 
@@ -68,6 +69,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                 ),
                 StaggerIn(
                     index: i++, child: _HeroCard(scores: latest, overall: s.overall, wheel: blend.scores, estimated: blend.estimated)),
+                const SizedBox(height: 14),
+                StaggerIn(index: i++, child: const TodayCard()),
                 const SizedBox(height: 14),
                 StaggerIn(index: i++, child: _QuickCheckCard(hasFull: latest.isNotEmpty, hasQuick: quick != null)),
                 const SizedBox(height: 14),
