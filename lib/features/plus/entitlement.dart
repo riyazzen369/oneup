@@ -153,22 +153,47 @@ final entitlementProvider = StateNotifierProvider<EntitlementController, Entitle
 final isPlusProvider = Provider<bool>((ref) => ref.watch(entitlementProvider).activeAt(ref.read(ritualClockProvider)()));
 
 /// What is gated. Safety, assessment, results, ritual, privacy and the disclaimer are never listed here.
-enum PlusFeature { reportHistory, extraGames, fullLessons, advancedTrends }
+enum PlusFeature {
+  consultation,
+  coaching,
+  pickedForYou,
+  reportDashboard,
+  prioritySupport,
+  reportHistory,
+  extraGames,
+  fullLessons,
+  advancedTrends,
+}
 
 extension PlusFeatureX on PlusFeature {
   String get title => switch (this) {
+        PlusFeature.consultation => 'Expert consultation',
+        PlusFeature.coaching => '1-on-1 wellness coaching',
+        PlusFeature.pickedForYou => 'Picked for you + member prices',
+        PlusFeature.reportDashboard => 'Weekly + monthly reports',
+        PlusFeature.prioritySupport => 'Priority support',
         PlusFeature.reportHistory => 'Full weekly report history',
         PlusFeature.extraGames => 'All 16 games',
         PlusFeature.fullLessons => 'Full long-form lessons',
         PlusFeature.advancedTrends => 'Advanced trends',
       };
   String get free => switch (this) {
+        PlusFeature.consultation => 'Browse SAMPLE experts',
+        PlusFeature.coaching => 'See SAMPLE coaches',
+        PlusFeature.pickedForYou => 'Focus recommendations, sample prices',
+        PlusFeature.reportDashboard => 'Latest $freeReportWeeks weekly reports',
+        PlusFeature.prioritySupport => 'Standard support',
         PlusFeature.reportHistory => 'Last $freeReportWeeks weeks',
         PlusFeature.extraGames => '$freeGameCount games, one per dimension',
         PlusFeature.fullLessons => 'Short lessons + first chapter of long reads',
         PlusFeature.advancedTrends => 'Wheel, goals and check-in history',
       };
   String get plus => switch (this) {
+        PlusFeature.consultation => 'Book a session (demo booking)',
+        PlusFeature.coaching => 'Book a coach or request a chat (demo)',
+        PlusFeature.pickedForYou => 'Picks for your lowest areas + SAMPLE member price',
+        PlusFeature.reportDashboard => 'Monthly reports + full history',
+        PlusFeature.prioritySupport => 'Priority response (demo)',
         PlusFeature.reportHistory => 'Up to 8 weeks',
         PlusFeature.extraGames => '8 more games',
         PlusFeature.fullLessons => 'Every chapter, example and reflection',
@@ -176,11 +201,15 @@ extension PlusFeatureX on PlusFeature {
       };
 }
 
+/// SAMPLE member discount shown on Market items for Plus (display only, demo).
+const memberDiscountPct = 10;
+int memberPrice(int price) => (price * (100 - memberDiscountPct) / 100).round();
+
 /// Always free, never behind Plus.
 const alwaysFree = [
   'Wellness assessment and results',
   'Daily ritual and quick check',
-  'Crisis and safety help',
+  'Crisis and safety help, immediate for everyone',
   'Privacy controls and delete my data',
 ];
 

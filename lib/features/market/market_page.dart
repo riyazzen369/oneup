@@ -6,6 +6,9 @@ import '../../core/theme/app_colors.dart';
 import '../../core/widgets/fx.dart';
 import '../articles/data/article_repository.dart' show focusDimensionsProvider;
 import 'market_models.dart';
+import '../assess/domain/assessment_controller.dart';
+import '../plus/entitlement.dart';
+import '../plus/plus_ui.dart';
 import 'market_widgets.dart';
 import 'market_category.dart';
 
@@ -135,6 +138,7 @@ class _MarketPageState extends ConsumerState<MarketPage> {
                         ),
                       ),
                   ],
+                  if (_q.isEmpty && _dim == null && _cat == null) const _PickedForYou(),
                   const SizedBox(height: 14),
                   Text(_dim == null ? 'Categories' : '${_dim!.label} categories',
                       style: t.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
@@ -205,4 +209,53 @@ class _MarketPageState extends ConsumerState<MarketPage> {
           },
         ),
       );
+}
+
+/// Plus: picks for the lowest-scored dimensions, with member pricing (SAMPLE). Free users see a soft lock.
+class _PickedForYou extends ConsumerWidget {
+  const _PickedForYou();
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = Theme.of(context);
+    final plus = ref.watch(isPlusProvider);
+    final picks = pickedForYou(ref.watch(assessmentProvider).latest);
+    return Column(key: const Key('market-picked'), crossAxisAlignment: CrossAxisAlignment.start, children: [
+      const SizedBox(height: 14),
+      Row(children: [
+        Text('Picked for you', style: t.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+        const SizedBox(width: 8),
+        const PlusBadge(small: true),
+      ]),
+      const SizedBox(height: 4),
+      if (!plus)
+        const PlusLockCard(
+            feature: PlusFeature.pickedForYou,
+            message:
+                'Plus picks SAMPLE items for your lowest-scored areas and shows a SAMPLE member price ($memberDiscountPct% off, demo).')
+      else if (picks.isEmpty)
+        Text('Complete an assessment to get picks for your areas.', style: t.textTheme.bodySmall)
+      else ...[
+        Text('For your lowest areas right now. SAMPLE member price $memberDiscountPct% off (demo). Not health advice.',
+            style: t.textTheme.bodySmall),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 214,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: picks.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 10),
+            itemBuilder: (_, k) => SizedBox(
+              width: 150,
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text('For ${picks[k].$2.label} · ${picks[k].$3}',
+                    style: t.textTheme.labelSmall?.copyWith(color: picks[k].$2.color(t.brightness), fontWeight: FontWeight.w700)),
+                const SizedBox(height: 4),
+                Expanded(child: ProductCard(picks[k].$1)),
+              ]),
+            ),
+          ),
+        ),
+      ],
+    ]);
+  }
 }

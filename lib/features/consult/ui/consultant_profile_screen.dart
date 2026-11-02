@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../plus/entitlement.dart';
+import '../../plus/plus_ui.dart';
 
 import '../../../core/services/haptics.dart';
 import '../data/consult_models.dart';
 import 'common.dart';
 
-class ConsultantProfileScreen extends StatelessWidget {
+class ConsultantProfileScreen extends ConsumerWidget {
   const ConsultantProfileScreen({super.key, required this.c});
   final Consultant c;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final plus = ref.watch(isPlusProvider);
     final t = Theme.of(context);
     return Scaffold(
       appBar: AppBar(title: const Text('Consultant')),
@@ -62,13 +66,19 @@ class ConsultantProfileScreen extends StatelessWidget {
           ]),
         ),
         const SizedBox(height: 8),
+        Text('SAMPLE expert, demo booking. Not a substitute for medical care.',
+            key: const Key('consult-sample-label'),
+            textAlign: TextAlign.center,
+            style: t.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w700)),
+        const SizedBox(height: 8),
         FilledButton.icon(
+          key: const Key('consult-book'),
           onPressed: () {
             Haptics.light();
-            context.push('/consult/book/${c.id}');
+            plus ? context.push('/consult/book/${c.id}') : showPlusUpsell(context, PlusFeature.consultation);
           },
-          icon: const Icon(Icons.calendar_month_rounded),
-          label: const Text('Book a session'),
+          icon: Icon(plus ? Icons.calendar_month_rounded : Icons.lock_outline_rounded),
+          label: Text(plus ? 'Book a session (demo)' : 'Book a session · Plus'),
         ),
         const SizedBox(height: 12),
         const DisclaimerNote(),

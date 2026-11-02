@@ -142,15 +142,30 @@ class PlusProfileCard extends ConsumerWidget {
     final c = ref.read(entitlementProvider.notifier);
     final plus = ref.watch(isPlusProvider);
     return Card(
-      key: const Key('profile-plus'),
       child: Column(children: [
         ListTile(
+          key: const Key('profile-plus'),
           leading: const Icon(Icons.auto_awesome_rounded, color: _gold),
           title: const Text('OneUP Plus'),
           subtitle: Text(plusStatusText(e, c.now), key: const Key('plus-status')),
           trailing: const Icon(Icons.chevron_right_rounded),
           onTap: Haptics.tap(() => context.push('/plus')),
         ),
+        for (final (f, icon, route) in [
+          (PlusFeature.reportDashboard, Icons.dashboard_rounded, '/reports'),
+          (PlusFeature.consultation, Icons.medical_services_outlined, '/consult'),
+          (PlusFeature.coaching, Icons.sports_rounded, '/coaching'),
+          (PlusFeature.prioritySupport, Icons.support_agent_rounded, '/support'),
+        ])
+          ListTile(
+            key: Key('profile-service-${f.name}'),
+            dense: true,
+            leading: Icon(icon),
+            title: Text(f.title),
+            subtitle: Text(plus ? f.plus : f.free),
+            trailing: plus ? const Icon(Icons.chevron_right_rounded) : const PlusBadge(small: true),
+            onTap: Haptics.tap(() => context.push(route)),
+          ),
         if (plus)
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),

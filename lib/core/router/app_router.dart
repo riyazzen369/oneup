@@ -1,5 +1,8 @@
 import '../../features/report/report_screen.dart';
 import '../../features/plus/plus_ui.dart';
+import '../../features/plus/entitlement.dart';
+import '../../features/plus/services.dart';
+import '../../features/report/monthly_report.dart';
 import '../../features/quick/quick_check_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -108,6 +111,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: '/report', builder: (_, s) => ReportScreen(weekId: s.uri.queryParameters['week'])),
       GoRoute(path: '/plus', builder: (_, __) => const PlusScreen()),
+      GoRoute(path: '/coaching', builder: (_, __) => const CoachingScreen()),
+      GoRoute(path: '/support', builder: (_, __) => const SupportScreen()),
+      GoRoute(path: '/reports', builder: (_, s) => ReportsDashboard(monthly: s.uri.queryParameters['view'] == 'monthly')),
       GoRoute(path: '/quick', builder: (_, __) => const QuickCheckScreen()),
       GoRoute(path: '/quick/result', builder: (_, __) => const QuickResultScreen()),
       GoRoute(path: '/results', builder: (_, __) => const ResultsScreen()),
@@ -120,7 +126,23 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/trends', builder: (_, __) => const TrendsScreen()),
       GoRoute(path: '/learn/:id', builder: (_, s) => LessonReader(id: s.pathParameters['id']!)),
       GoRoute(path: '/consult/c/:id', builder: (_, s) => _cons(s) == null ? const NotFoundScreen() : ConsultantProfileScreen(c: _cons(s)!)),
-      GoRoute(path: '/consult/book/:id', builder: (_, s) => _cons(s) == null ? const NotFoundScreen() : BookingScreen(c: _cons(s)!)),
+      GoRoute(
+          path: '/consult/book/:id',
+          builder: (_, s) => _cons(s) == null
+              ? const NotFoundScreen()
+              : Consumer(
+                  builder: (_, ref, __) => ref.watch(isPlusProvider)
+                      ? BookingScreen(c: _cons(s)!)
+                      : Scaffold(
+                          appBar: AppBar(title: const Text('Book a session')),
+                          body: const Padding(
+                            padding: EdgeInsets.all(16),
+                            child: PlusLockCard(
+                                feature: PlusFeature.consultation,
+                                message: 'Booking a SAMPLE expert (demo booking) is part of OneUP Plus. '
+                                    'Crisis help stays free and immediate for everyone.'),
+                          ),
+                        ))),
       GoRoute(
           path: '/consult/pay',
           builder: (_, s) => s.extra is BookingDraft ? PaymentScreen(draft: s.extra! as BookingDraft) : const NotFoundScreen()),

@@ -1,3 +1,4 @@
+import '../plus/entitlement.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -73,7 +74,20 @@ class ProductCard extends ConsumerWidget {
               overflow: TextOverflow.ellipsis,
               style: t.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700, height: 1.15)),
           const SizedBox(height: 2),
-          Text(p.priceLabel, style: t.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600)),
+          if (ref.watch(isPlusProvider) && !p.consultOnly)
+            Row(children: [
+              Flexible(
+                child: Text('₹${memberPrice(p.price)} member',
+                    key: Key('member-price-${p.id}'),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: t.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w800, color: const Color(0xFFB7811A))),
+              ),
+              const SizedBox(width: 4),
+              Text('₹${p.price}', style: t.textTheme.labelSmall?.copyWith(decoration: TextDecoration.lineThrough)),
+            ])
+          else
+            Text(p.priceLabel, style: t.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600)),
         ]),
       ),
     );

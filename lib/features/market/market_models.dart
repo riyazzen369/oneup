@@ -180,6 +180,16 @@ List<Product> recommendedProducts(List<WellnessDimension> focus, {int n = 8}) {
   return out;
 }
 
+/// Plus "Picked for you": items for the user's lowest-scored dimensions (2 per dimension, up to 3 dimensions).
+/// Uses only scores the user already sees; no health claims.
+List<(Product, WellnessDimension, int)> pickedForYou(Map<WellnessDimension, int> latest, {int dims = 3, int per = 2}) {
+  final low = latest.entries.toList()..sort((a, b) => a.value.compareTo(b.value));
+  return [
+    for (final e in low.take(dims))
+      for (final p in catalog.where((p) => p.dimension == e.key && !p.consultOnly).toList().reversed.take(per)) (p, e.key, e.value),
+  ];
+}
+
 class Order {
   const Order(
       {required this.id,
