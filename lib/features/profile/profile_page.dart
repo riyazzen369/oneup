@@ -1,3 +1,4 @@
+import '../quick/quick_check.dart';
 import '../learn/reader_prefs.dart';
 import '../games/game_scores.dart';
 import '../market/market_repository.dart';
@@ -130,6 +131,7 @@ Future<void> deleteMyData(WidgetRef ref) async {
   ref.invalidate(marketProvider);
   ref.invalidate(readerPrefsProvider);
   ref.invalidate(readingPositionsProvider);
+  ref.invalidate(quickCheckProvider);
   ref.read(crisisModeProvider.notifier).state = false;
 }
 

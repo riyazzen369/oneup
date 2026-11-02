@@ -1,3 +1,4 @@
+import '../../features/quick/quick_check_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -103,6 +104,8 @@ final routerProvider = Provider<GoRouter>((ref) {
                 score: s.extra as int? ?? 0,
               ),
       ),
+      GoRoute(path: '/quick', builder: (_, __) => const QuickCheckScreen()),
+      GoRoute(path: '/quick/result', builder: (_, __) => const QuickResultScreen()),
       GoRoute(path: '/results', builder: (_, __) => const ResultsScreen()),
       GoRoute(
         path: '/results/dim/:dim',

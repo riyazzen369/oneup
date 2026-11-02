@@ -14,6 +14,7 @@ class WellnessWheel extends StatefulWidget {
     this.showLabels = true,
     this.onTapDimension,
     this.labelFontFamily,
+    this.estimated = const {},
   });
   final Map<WellnessDimension, int> scores;
   final int? overall;
@@ -23,6 +24,9 @@ class WellnessWheel extends StatefulWidget {
 
   /// Optional; null keeps the platform default font (used by the preview render).
   final String? labelFontFamily;
+
+  /// Dimensions whose score is a Quick Check estimate: drawn lighter with a dashed edge + "Quick" tag.
+  final Set<WellnessDimension> estimated;
 
   @override
   State<WellnessWheel> createState() => _WellnessWheelState();
@@ -67,7 +71,8 @@ class _WellnessWheelState extends State<WellnessWheel> with SingleTickerProvider
   Widget build(BuildContext context) {
     final t = Theme.of(context);
     final summary = [
-      for (final d in WellnessDimension.values) '${d.label} ${widget.scores[d]?.toString() ?? "not assessed"}',
+      for (final d in WellnessDimension.values)
+        '${d.label} ${widget.scores[d]?.toString() ?? "not assessed"}${widget.estimated.contains(d) ? " (quick estimate)" : ""}',
     ].join(', ');
     return Semantics(
       label: 'Wellness wheel. ${widget.overall == null ? "" : "Overall ${widget.overall}. "}$summary',
@@ -88,6 +93,7 @@ class _WellnessWheelState extends State<WellnessWheel> with SingleTickerProvider
                 showLabels: widget.showLabels,
                 textScale: MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 1.3),
                 fontFamily: widget.labelFontFamily ?? t.textTheme.bodyMedium?.fontFamily,
+                estimated: widget.estimated,
               ),
             ),
           ),
@@ -108,7 +114,9 @@ class _WheelPainter extends CustomPainter {
     required this.showLabels,
     required this.textScale,
     this.fontFamily,
+    this.estimated = const {},
   });
+  final Set<WellnessDimension> estimated;
   final Map<WellnessDimension, int> scores;
   final int? overall;
   final double progress;
@@ -138,7 +146,21 @@ class _WheelPainter extends CustomPainter {
       // Fill (staggered per segment)
       final local = ((progress * 1.4) - i * 0.05).clamp(0.0, 1.0);
       final s = scores[d];
-      if (s != null && s > 0) {
+      final est = estimated.contains(d);
+      if (s != null && s > 0 && est) {
+        final r = inner + (outer - inner) * (s / 100) * local;
+        _wedge(canvas, c, inner, r, start, sweep, Paint()..color = color.withOpacity(0.42));
+        _dashedArc(
+            canvas,
+            c,
+            r,
+            start,
+            sweep,
+            Paint()
+              ..color = color
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = 2.2);
+      } else if (s != null && s > 0) {
         final r = inner + (outer - inner) * (s / 100) * local;
         _wedge(
             canvas,
@@ -154,11 +176,15 @@ class _WheelPainter extends CustomPainter {
       if (showLabels) {
         final mid = start + sweep / 2;
         final pos = c + Offset(math.cos(mid), math.sin(mid)) * (outer * 0.70);
-        final onSeg = (s ?? 0) >= 55 ? Colors.white : onSurface;
+        final onSeg = (s ?? 0) >= 55 && !est ? Colors.white : onSurface;
         _text(canvas, String.fromCharCode(d.icon.codePoint), pos.translate(0, -10 * k),
             TextStyle(fontFamily: d.icon.fontFamily, package: d.icon.fontPackage, fontSize: 20 * k * textScale, color: onSeg));
         _text(canvas, d.label, pos.translate(0, 12 * k),
             TextStyle(fontFamily: fontFamily, fontSize: 9.5 * k * textScale, fontWeight: FontWeight.w600, color: onSeg));
+        if (est && s != null) {
+          _text(canvas, 'Quick', pos.translate(0, 26 * k),
+              TextStyle(fontFamily: fontFamily, fontSize: 8 * k * textScale, fontStyle: FontStyle.italic, color: onSeg.withOpacity(0.8)));
+        }
       }
     }
     // Centre
@@ -181,11 +207,21 @@ class _WheelPainter extends CustomPainter {
     canvas.drawPath(path, p);
   }
 
+  void _dashedArc(Canvas canvas, Offset c, double r, double start, double sweep, Paint p) {
+    if (r <= 0) return;
+    final rect = Rect.fromCircle(center: c, radius: r);
+    final dash = 6 / r, gapA = 4 / r;
+    for (var a = 0.0; a < sweep; a += dash + gapA) {
+      canvas.drawArc(rect, start + a, math.min(dash, sweep - a), false, p);
+    }
+  }
+
   void _text(Canvas canvas, String s, Offset center, TextStyle style) {
     final tp = TextPainter(text: TextSpan(text: s, style: style), textDirection: TextDirection.ltr)..layout();
     tp.paint(canvas, center - Offset(tp.width / 2, tp.height / 2));
   }
 
   @override
-  bool shouldRepaint(_WheelPainter o) => o.progress != progress || o.scores != scores || o.brightness != brightness || o.overall != overall;
+  bool shouldRepaint(_WheelPainter o) =>
+      o.progress != progress || o.scores != scores || o.brightness != brightness || o.overall != overall || o.estimated != estimated;
 }

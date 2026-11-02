@@ -18,6 +18,8 @@ import '../../core/safety/safety_state.dart';
 import '../companion/ui/companion_button.dart';
 import '../articles/ui/articles_ui.dart';
 import 'welcome_dialog.dart';
+import '../quick/quick_check.dart';
+import '../quick/quick_check_screen.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -44,6 +46,8 @@ class _HomePageState extends ConsumerState<HomePage> {
     final focus = rankFocus(latest, s.goals, top: 1);
     var i = 0;
     final crisis = ref.watch(crisisModeProvider);
+    final quick = ref.watch(quickCheckProvider).latest;
+    final blend = blendScores(latest, quick);
     return Scaffold(
       floatingActionButton: const CompanionButton(),
       backgroundColor: Colors.transparent,
@@ -62,7 +66,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                     child: Text('OneUp', style: t.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800)),
                   ),
                 ),
-                StaggerIn(index: i++, child: _HeroCard(scores: latest, overall: s.overall)),
+                StaggerIn(
+                    index: i++, child: _HeroCard(scores: latest, overall: s.overall, wheel: blend.scores, estimated: blend.estimated)),
+                const SizedBox(height: 14),
+                StaggerIn(index: i++, child: _QuickCheckCard(hasFull: latest.isNotEmpty, hasQuick: quick != null)),
                 const SizedBox(height: 14),
                 StaggerIn(index: i++, child: _TrendsCard(scores: latest, goals: s.goals)),
                 const SizedBox(height: 14),
@@ -152,9 +159,13 @@ String homeOneLiner(int assessed, int? overall) {
 }
 
 class _HeroCard extends StatelessWidget {
-  const _HeroCard({required this.scores, required this.overall});
+  const _HeroCard({required this.scores, required this.overall, required this.wheel, required this.estimated});
   final Map<WellnessDimension, int> scores;
   final int? overall;
+
+  /// Full scores plus Quick Check estimates for dimensions with no full score.
+  final Map<WellnessDimension, int> wheel;
+  final Set<WellnessDimension> estimated;
 
   @override
   Widget build(BuildContext context) {
@@ -163,7 +174,12 @@ class _HeroCard extends StatelessWidget {
     return Column(children: [
       Text('Overall wellness', style: t.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
       const SizedBox(height: 8),
-      LayoutBuilder(builder: (_, c) => _GlowWheel(scores: scores, overall: overall, size: c.maxWidth - 24)),
+      LayoutBuilder(builder: (_, c) => _GlowWheel(scores: wheel, estimated: estimated, overall: overall, size: c.maxWidth - 24)),
+      if (estimated.isNotEmpty) ...[
+        const SizedBox(height: 6),
+        Text('Lighter dashed segments are Quick Check estimates',
+            key: const Key('home-quick-legend'), style: t.textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic)),
+      ],
       const SizedBox(height: 10),
       Text(overall == null ? '${scores.length}/8 dimensions assessed' : bandFor(overall!).label,
           style: t.textTheme.titleSmall?.copyWith(color: t.colorScheme.primary, fontWeight: FontWeight.w700)),
@@ -189,8 +205,9 @@ class _HeroCard extends StatelessWidget {
 
 /// Larger mini wheel with soft glow, slow sway + pulse; segments are tappable.
 class _GlowWheel extends StatefulWidget {
-  const _GlowWheel({required this.scores, required this.overall, required this.size});
+  const _GlowWheel({required this.scores, required this.overall, required this.size, this.estimated = const {}});
   final Map<WellnessDimension, int> scores;
+  final Set<WellnessDimension> estimated;
   final int? overall;
   final double size;
   @override
@@ -244,6 +261,7 @@ class _GlowWheelState extends State<_GlowWheel> with SingleTickerProviderStateMi
         child: WellnessWheel(
           scores: widget.scores,
           overall: widget.overall,
+          estimated: widget.estimated,
           size: size,
           onTapDimension: Haptics.pick((d) => context.push('/results/dim/${d.name}')),
         ),
@@ -346,6 +364,48 @@ class _SuggestCard extends StatelessWidget {
           ]),
           const SizedBox(height: 8),
           Text(smartSuggestion(item), style: t.textTheme.bodyMedium),
+        ]),
+      ),
+    );
+  }
+}
+
+/// Offers the 60-second Quick Check; prominent for new users with no full scores.
+class _QuickCheckCard extends StatelessWidget {
+  const _QuickCheckCard({required this.hasFull, required this.hasQuick});
+  final bool hasFull, hasQuick;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context);
+    return PressScale(
+      semanticLabel: '60-second Quick Check',
+      onTap: Haptics.tap(() => startQuickCheck(context)),
+      child: GlassCard(
+        key: const Key('home-quick-check'),
+        padding: const EdgeInsets.all(14),
+        child: Row(children: [
+          const CircleAvatar(backgroundColor: AppColors.secondary, foregroundColor: Colors.white, child: Icon(Icons.bolt_rounded)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(hasQuick ? 'Redo the 60-second Quick Check' : '60-second Quick Check',
+                  style: t.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+              Text(
+                  hasFull
+                      ? 'A fast estimate across all 8 areas. Your full scores stay as they are.'
+                      : 'New here? Get an instant snapshot of all 8 areas, then take the deep dive.',
+                  style: t.textTheme.bodySmall),
+            ]),
+          ),
+          if (hasQuick)
+            IconButton(
+              tooltip: 'View Quick Wheel',
+              onPressed: Haptics.tap(() => context.push('/quick/result')),
+              icon: const Icon(Icons.donut_small_rounded),
+            )
+          else
+            const Icon(Icons.chevron_right_rounded),
         ]),
       ),
     );

@@ -10,6 +10,7 @@ import 'data/assessment_models.dart';
 import 'data/question_bank.dart';
 import 'domain/assessment_controller.dart';
 import 'domain/scoring.dart';
+import '../quick/quick_check_screen.dart' show startQuickCheck;
 
 /// Mandatory disclaimer before every assessment. Returns true only if accepted.
 Future<bool> showAssessmentDisclaimer(BuildContext context) async {
@@ -155,6 +156,20 @@ class AssessPage extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
+                Card(
+                  key: const Key('assess-quick-check'),
+                  child: ListTile(
+                    leading: const Icon(Icons.bolt_rounded),
+                    title: const Text('60-second Quick Check'),
+                    subtitle: const Text('A fast estimate. The 8 areas below are the Deep dive.'),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: Haptics.tap(() => startQuickCheck(context)),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(4, 12, 4, 8),
+                  child: Text('Deep dive: full assessment', style: t.textTheme.titleMedium),
+                ),
                 GridView.count(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
