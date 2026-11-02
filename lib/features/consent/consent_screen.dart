@@ -1,3 +1,4 @@
+import '../privacy/privacy.dart';
 import 'package:flutter/material.dart';
 import '../../core/services/haptics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -66,6 +67,8 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen> {
           child: Column(children: [
             Expanded(
               child: ListView(padding: const EdgeInsets.all(24), children: [
+                const Align(alignment: Alignment.centerLeft, child: PrivateBadge()),
+                const SizedBox(height: 12),
                 Text('Your privacy', style: t.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700)),
                 const SizedBox(height: 8),
                 Text('Your wellness answers are sensitive. Here is how we handle them.', style: t.textTheme.bodyLarge),

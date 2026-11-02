@@ -1,3 +1,4 @@
+import '../privacy/privacy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -558,6 +559,8 @@ class PlusScreen extends ConsumerWidget {
           ]),
         ),
         const SizedBox(height: 12),
+        const Center(child: PrivateBadge(compact: true)),
+        const SizedBox(height: 8),
         Text(
             'All prices and values are SAMPLE placeholders [VERIFY] and not final. $plusDemoNote OneUP is for wellness awareness, not medical advice or diagnosis.',
             key: const Key('plus-demo-note'),

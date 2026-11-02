@@ -1,3 +1,4 @@
+import '../privacy/privacy.dart';
 import '../plus/plus_ui.dart';
 import 'dart:async';
 import 'dart:math' as math;
@@ -188,6 +189,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                 StaggerIn(index: i++, child: const PlusHomeBanner()),
                 const SizedBox(height: 12),
                 StaggerIn(index: i++, child: const ArticlesSection()),
+                const SizedBox(height: 16),
+                const Center(child: PrivateBadge(compact: true)),
+                const SizedBox(height: 8),
               ])),
             ),
           ]),

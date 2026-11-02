@@ -1,3 +1,4 @@
+import '../../features/privacy/privacy.dart';
 import '../../features/experts/experts.dart';
 import '../../features/org/org_ui.dart';
 import '../../features/report/report_screen.dart';
@@ -113,6 +114,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: '/report', builder: (_, s) => ReportScreen(weekId: s.uri.queryParameters['week'])),
       GoRoute(path: '/plus', builder: (_, __) => const PlusScreen()),
+      GoRoute(path: '/privacy', builder: (_, __) => const PrivacyScreen()),
       GoRoute(path: '/experts', builder: (_, __) => const ExpertsScreen()),
       GoRoute(path: '/org', builder: (_, __) => const OrgDashboardScreen()),
       GoRoute(path: '/org/join', builder: (_, __) => const OrgJoinScreen()),

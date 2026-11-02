@@ -1,3 +1,6 @@
+import '../plus/services.dart';
+import '../experts/experts.dart';
+import '../org/org.dart';
 import '../org/org_ui.dart';
 import '../plus/entitlement.dart';
 import '../plus/plus_ui.dart';
@@ -45,6 +48,16 @@ class ProfilePage extends ConsumerWidget {
         const SizedBox(height: 8),
         const PlusProfileCard(),
         const OrgProfileCard(),
+        Card(
+          child: ListTile(
+            key: const Key('profile-privacy'),
+            leading: const Icon(Icons.shield_outlined),
+            title: const Text('Privacy Center'),
+            subtitle: const Text('Your data, locked: see, export or delete it'),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => context.push('/privacy'),
+          ),
+        ),
         Card(
           child: ListTile(
             key: const Key('profile-experts'),
@@ -157,6 +170,9 @@ Future<void> deleteMyData(WidgetRef ref) async {
   ref.invalidate(activityProvider);
   ref.invalidate(reportsProvider);
   ref.invalidate(entitlementProvider);
+  ref.invalidate(orgProvider);
+  ref.invalidate(contentFeedbackProvider);
+  ref.invalidate(serviceRequestsProvider);
   ref.read(pendingReportProvider.notifier).state = false;
   await ref.read(ritualRemindersProvider).cancelAll();
   ref.invalidate(ritualSettingsProvider);
