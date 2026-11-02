@@ -132,7 +132,14 @@ class ReferralController extends StateNotifier<ReferralState> {
     } catch (_) {}
     if (!mounted) return;
     state = s;
-    if (s.code == null || !inviteCodePattern.hasMatch(s.code!)) await _save(s.copy(code: newInviteCode(_rng)));
+    // Code lives in memory until first used (shared or any change), so deleting all data leaves no key behind.
+    if (s.code == null || !inviteCodePattern.hasMatch(s.code!)) state = s.copy(code: newInviteCode(_rng));
+  }
+
+  /// Saves the invite code so it stays the same; called before it is shared.
+  Future<void> keepCode() async {
+    await ready;
+    if (await _store.read(key) == null) await _save(state);
   }
 
   Future<void> _save(ReferralState s) async {

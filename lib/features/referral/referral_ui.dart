@@ -53,7 +53,12 @@ class InviteScreen extends ConsumerWidget {
                 key: const Key('invite-share'),
                 icon: Icons.ios_share_rounded,
                 label: 'Share invite',
-                onPressed: code == null ? null : () => ref.read(inviteSharerProvider)(inviteText(code)),
+                onPressed: code == null
+                    ? null
+                    : () async {
+                        await ref.read(referralProvider.notifier).keepCode();
+                        await ref.read(inviteSharerProvider)(inviteText(code));
+                      },
               ),
             ]),
           ),

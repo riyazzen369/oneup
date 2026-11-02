@@ -27,6 +27,8 @@ void main() {
     await a.read(referralProvider.notifier).ready;
     final code = a.read(referralProvider).code!;
     expect(inviteCodePattern.hasMatch(code), isTrue);
+    expect(s.m, isEmpty); // nothing written just by opening
+    await a.read(referralProvider.notifier).keepCode();
     a.dispose();
     final b = box(s);
     await b.read(referralProvider.notifier).ready;
