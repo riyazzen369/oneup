@@ -215,3 +215,31 @@ const alwaysFree = [
 
 /// Games after the first [freeGameCount] (one per dimension) are Plus extras.
 bool isPlusGame(String id) => games.indexWhere((g) => g.id == id) >= freeGameCount;
+
+/// SAMPLE numbers for display only [VERIFY]. Not real prices or real values.
+const sampleMonthlyRupees = 149, sampleYearlyRupees = 1299;
+const sampleValues = <(String, int)>[
+  ('Expert consultation (1 session)', 999),
+  ('1-on-1 wellness coaching (1 session)', 1499),
+  ('Priority support', 299),
+  ('Monthly reports + full history', 199),
+  ('Full long-form lessons', 199),
+  ('Member prices in Market', 149),
+  ('8 extra games', 99),
+];
+int get sampleTotalValue => sampleValues.fold(0, (a, b) => a + b.$2);
+
+/// Yearly saving vs 12 × monthly, rounded down (SAMPLE prices).
+int get sampleYearlySavePct => ((1 - sampleYearlyRupees / (sampleMonthlyRupees * 12)) * 100).floor();
+
+String rupees(int v) {
+  final s = v.toString();
+  if (s.length <= 3) return '₹$s';
+  final head = s.substring(0, s.length - 3), tail = s.substring(s.length - 3);
+  final b = StringBuffer();
+  for (var i = 0; i < head.length; i++) {
+    if (i > 0 && (head.length - i) % 2 == 0) b.write(',');
+    b.write(head[i]);
+  }
+  return '₹$b,$tail';
+}

@@ -116,7 +116,7 @@ void main() {
     await pumpN(t);
     await t.scrollUntilVisible(find.byKey(const Key('plus-always-free')), 200, scrollable: find.byType(Scrollable).first);
     expect(find.byKey(const Key('plus-always-free')), findsOneWidget);
-    await t.scrollUntilVisible(find.byKey(const Key('plus-trial')), 200, scrollable: find.byType(Scrollable).first);
+    await t.scrollUntilVisible(find.byKey(const Key('plus-trial')), -200, scrollable: find.byType(Scrollable).first);
     await t.tap(find.byKey(const Key('plus-trial')));
     await pumpN(t);
     expect(find.byKey(const Key('plus-trial')), findsNothing);
