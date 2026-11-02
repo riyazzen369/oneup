@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/material.dart';
 
 /// Fade-through (Material motion) for every route; instant when animations are disabled.
@@ -23,6 +24,10 @@ class FadeThroughPageTransitionsBuilder extends PageTransitionsBuilder {
 /// Bouncing, always-scrollable physics app-wide.
 class OneUpScrollBehavior extends MaterialScrollBehavior {
   const OneUpScrollBehavior();
+
+  /// Lets a mouse or trackpad drag-scroll like a finger (web showcase).
+  @override
+  Set<PointerDeviceKind> get dragDevices => {...super.dragDevices, PointerDeviceKind.mouse, PointerDeviceKind.trackpad};
   @override
   ScrollPhysics getScrollPhysics(BuildContext context) => const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics());
 }

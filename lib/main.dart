@@ -1,4 +1,6 @@
 import 'dart:io' show Platform;
+
+import 'core/widgets/phone_frame.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
@@ -84,10 +86,11 @@ class OneUpApp extends ConsumerWidget {
       builder: (context, child) {
         // Respect user font scaling but clamp to keep layouts usable.
         final mq = MediaQuery.of(context);
-        return MediaQuery(
+        final app = MediaQuery(
           data: mq.copyWith(textScaler: mq.textScaler.clamp(minScaleFactor: 0.85, maxScaleFactor: 1.6)),
           child: child!,
         );
+        return kIsWeb ? PhoneFrame(child: app) : app;
       },
     );
   }
