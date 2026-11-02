@@ -1,3 +1,4 @@
+import '../../features/org/org_ui.dart';
 import '../../features/report/report_screen.dart';
 import '../../features/plus/plus_ui.dart';
 import '../../features/plus/entitlement.dart';
@@ -111,6 +112,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: '/report', builder: (_, s) => ReportScreen(weekId: s.uri.queryParameters['week'])),
       GoRoute(path: '/plus', builder: (_, __) => const PlusScreen()),
+      GoRoute(path: '/org', builder: (_, __) => const OrgDashboardScreen()),
+      GoRoute(path: '/org/join', builder: (_, __) => const OrgJoinScreen()),
+      GoRoute(path: '/org/demo', builder: (_, __) => const OrgDemoFormScreen()),
       GoRoute(path: '/coaching', builder: (_, __) => const CoachingScreen()),
       GoRoute(path: '/support', builder: (_, __) => const SupportScreen()),
       GoRoute(path: '/reports', builder: (_, s) => ReportsDashboard(monthly: s.uri.queryParameters['view'] == 'monthly')),

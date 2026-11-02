@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/services/haptics.dart';
 import '../../core/widgets/fx.dart';
 import '../results/dimension_detail_screen.dart' show fmtDate;
+import '../org/org.dart';
 import 'entitlement.dart';
 
 /// Plus brand accent: fluorescent lime → neon cyan. Always pair with [plusInk] text for contrast.
@@ -47,22 +48,26 @@ class PlusButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final IconData? icon;
   @override
-  Widget build(BuildContext context) => DecoratedBox(
-        decoration: BoxDecoration(gradient: plusGradient, borderRadius: BorderRadius.circular(99), boxShadow: plusGlow(0.8)),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(99),
-            onTap: onPressed,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-              child: Row(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.center, children: [
-                if (icon != null) ...[Icon(icon, color: plusInk, size: 20), const SizedBox(width: 8)],
-                Flexible(
-                    child: Text(label,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(color: plusInk, fontWeight: FontWeight.w900, letterSpacing: 0.2))),
-              ]),
+  Widget build(BuildContext context) => Opacity(
+        opacity: onPressed == null ? 0.4 : 1,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+              gradient: plusGradient, borderRadius: BorderRadius.circular(99), boxShadow: onPressed == null ? null : plusGlow(0.8)),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(99),
+              onTap: onPressed,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                child: Row(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.center, children: [
+                  if (icon != null) ...[Icon(icon, color: plusInk, size: 20), const SizedBox(width: 8)],
+                  Flexible(
+                      child: Text(label,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(color: plusInk, fontWeight: FontWeight.w900, letterSpacing: 0.2))),
+                ]),
+              ),
             ),
           ),
         ),
@@ -258,7 +263,8 @@ class PlusHomeBanner extends ConsumerWidget {
   }
 }
 
-String plusStatusText(Entitlement e, DateTime now) {
+String plusStatusText(Entitlement e, DateTime now, [CompanyMembership? org]) {
+  if (org != null && !e.activeAt(now)) return 'Company plan · ${org.company}';
   if (!e.activeAt(now)) return e.expiresAt != null ? 'Ended ${fmtDate(e.expiresAt!)} · you are on Free' : 'You are on Free';
   final until = fmtDate(e.expiresAt!);
   if (e.cancelled) return '${e.plan!.label} · cancelled, access until $until';
@@ -287,7 +293,7 @@ class PlusProfileCard extends ConsumerWidget {
               child: const Icon(Icons.auto_awesome_rounded, color: plusInk, size: 20),
             ),
             title: Text('OneUP PLUS', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 0.6, color: plusOn(context))),
-            subtitle: Text(plusStatusText(e, c.now), key: const Key('plus-status')),
+            subtitle: Text(plusStatusText(e, c.now, ref.watch(orgProvider)), key: const Key('plus-status')),
             trailing: const Icon(Icons.chevron_right_rounded),
             onTap: Haptics.tap(() => context.push('/plus')),
           ),
@@ -306,7 +312,7 @@ class PlusProfileCard extends ConsumerWidget {
               trailing: plus ? const Icon(Icons.chevron_right_rounded) : const PlusBadge(small: true),
               onTap: Haptics.tap(() => context.push(route)),
             ),
-          if (plus)
+          if (plus && e.activeAt(c.now))
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
               child: Row(children: [
@@ -451,8 +457,12 @@ class PlusScreen extends ConsumerWidget {
             const SizedBox(height: 10),
             Text('Go a little further', style: t.textTheme.titleLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.w800)),
             const SizedBox(height: 4),
-            Text(plus ? plusStatusText(e, now) : 'Experts, coaching, deeper reports and more. The essentials stay free, always.',
-                key: const Key('plus-screen-status'), style: t.textTheme.bodyMedium?.copyWith(color: Colors.white70)),
+            Text(
+                plus
+                    ? plusStatusText(e, now, ref.watch(orgProvider))
+                    : 'Experts, coaching, deeper reports and more. The essentials stay free, always.',
+                key: const Key('plus-screen-status'),
+                style: t.textTheme.bodyMedium?.copyWith(color: Colors.white70)),
           ]),
         ),
         const SizedBox(height: 16),
@@ -511,7 +521,7 @@ class PlusScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 20),
         ],
-        if (plus && !e.cancelled) ...[
+        if (plus && e.activeAt(now) && !e.cancelled) ...[
           OutlinedButton(
               key: const Key('plus-screen-cancel'), onPressed: () => confirmCancelPlus(context, ref), child: const Text('Cancel Plus')),
           const SizedBox(height: 20),

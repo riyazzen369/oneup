@@ -1,3 +1,4 @@
+import '../org/org_ui.dart';
 import '../plus/entitlement.dart';
 import '../plus/plus_ui.dart';
 import '../ritual/ritual.dart';
@@ -43,6 +44,7 @@ class ProfilePage extends ConsumerWidget {
         const _ProfileHeader(),
         const SizedBox(height: 8),
         const PlusProfileCard(),
+        const OrgProfileCard(),
         Card(
           child: Padding(
             padding: const EdgeInsets.all(16),

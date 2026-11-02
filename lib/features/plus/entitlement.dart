@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/services/secure_store.dart';
 import '../games/game_catalog.dart';
+import '../org/org.dart';
 import '../ritual/ritual.dart' show ritualClockProvider;
 
 /// DEMO ONLY. No billing SDK and no real payments: every "purchase" just writes a local,
@@ -150,7 +151,9 @@ final entitlementProvider = StateNotifierProvider<EntitlementController, Entitle
     (ref) => EntitlementController(ref.read(secureStoreProvider), ref.read(ritualClockProvider)));
 
 /// True while Plus is active. Re-evaluated whenever the entitlement changes.
-final isPlusProvider = Provider<bool>((ref) => ref.watch(entitlementProvider).activeAt(ref.read(ritualClockProvider)()));
+/// Plus via own (demo) plan or via a company plan.
+final isPlusProvider =
+    Provider<bool>((ref) => ref.watch(entitlementProvider).activeAt(ref.read(ritualClockProvider)()) || ref.watch(orgProvider) != null);
 
 /// What is gated. Safety, assessment, results, ritual, privacy and the disclaimer are never listed here.
 enum PlusFeature {
