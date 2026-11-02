@@ -1,3 +1,4 @@
+import '../experts/experts.dart';
 import 'package:flutter/material.dart';
 import '../../core/widgets/fx.dart';
 import '../../core/services/haptics.dart';
@@ -23,6 +24,8 @@ class ResultsScreen extends ConsumerWidget {
         IconButton(tooltip: 'Trends', onPressed: Haptics.tap(() => context.push('/trends')), icon: const Icon(Icons.insights_rounded)),
       ]),
       body: ListView(padding: const EdgeInsets.all(16), children: [
+        const Center(child: ReviewedBadge()),
+        const SizedBox(height: 8),
         Center(
           child: LayoutBuilder(
             builder: (_, c) => Hero(

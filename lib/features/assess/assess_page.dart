@@ -1,3 +1,4 @@
+import '../experts/experts.dart';
 import 'package:flutter/material.dart';
 import '../../core/widgets/fx.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -111,6 +112,8 @@ class AssessPage extends ConsumerWidget {
                 return ref.read(assessmentProvider.notifier).refreshFromRemote();
               },
               child: ListView(padding: const EdgeInsets.all(16), children: [
+                const Align(alignment: Alignment.centerLeft, child: ReviewedBadge()),
+                const SizedBox(height: 8),
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(20),

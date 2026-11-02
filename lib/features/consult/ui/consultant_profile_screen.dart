@@ -1,3 +1,4 @@
+import '../../experts/experts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -28,6 +29,8 @@ class ConsultantProfileScreen extends ConsumerWidget {
           const SampleBadge(),
         ]),
         Text(c.type.label, textAlign: TextAlign.center, style: t.textTheme.titleMedium),
+        const SizedBox(height: 6),
+        const Center(child: ReviewedBadge(compact: true)),
         const SizedBox(height: 16),
         Card(child: Padding(padding: const EdgeInsets.all(16), child: Text(c.bio))),
         Card(

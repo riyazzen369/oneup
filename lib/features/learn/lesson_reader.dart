@@ -1,3 +1,4 @@
+import '../experts/experts.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -172,6 +173,8 @@ class _LessonReaderState extends ConsumerState<LessonReader> {
       Text(lesson.title, style: t.textTheme.headlineSmall?.copyWith(fontSize: fs * 1.5, height: 1.25, fontWeight: FontWeight.w800)),
       const SizedBox(height: 8),
       Text('From ${book.short} by ${book.author}', style: small?.copyWith(fontWeight: FontWeight.w600)),
+      const SizedBox(height: 6),
+      const Align(alignment: Alignment.centerLeft, child: ReviewedBadge(compact: true)),
       const SizedBox(height: 4),
       Text('${lesson.readingMinutes} min read · ${lesson.wordCount} words', key: const Key('reading-time'), style: small),
       if (book.verify) ...[
@@ -251,6 +254,12 @@ class _LessonReaderState extends ConsumerState<LessonReader> {
       ],
       const SizedBox(height: 32),
     ];
+
+    content.addAll([
+      const SizedBox(height: 20),
+      const Divider(),
+      LessonReviewFooter(lessonId: lesson.id, dimension: lesson.dimensions.first),
+    ]);
 
     return Theme(
       data: t,

@@ -46,6 +46,16 @@ class ProfilePage extends ConsumerWidget {
         const PlusProfileCard(),
         const OrgProfileCard(),
         Card(
+          child: ListTile(
+            key: const Key('profile-experts'),
+            leading: const Icon(Icons.verified_outlined),
+            title: const Text('Expert Advisory Board'),
+            subtitle: const Text('Who reviews our content (SAMPLE)'),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => context.push('/experts'),
+          ),
+        ),
+        Card(
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
