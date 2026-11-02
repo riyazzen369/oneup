@@ -172,21 +172,21 @@ class _WheelPainter extends CustomPainter {
       const sweep = seg - gap;
       final color = d.color(brightness);
       final mid0 = start + sweep / 2;
-      final g = ((glow[d] ?? 0) + (d == pulse ? pulseT * 0.8 : 0)).clamp(0.0, 1.6);
+      final g = ((glow[d] ?? 0) + (d == pulse ? pulseT * 1.3 : 0)).clamp(0.0, 2.0);
       canvas.save();
       if (g > 0) {
         // Grow: nudge the slice outward a few px, then halo its outer edge.
-        canvas.translate(math.cos(mid0) * 5 * k * g, math.sin(mid0) * 5 * k * g);
+        canvas.translate(math.cos(mid0) * 9 * k * g.clamp(0.0, 1.4), math.sin(mid0) * 9 * k * g.clamp(0.0, 1.4));
         canvas.drawArc(
             Rect.fromCircle(center: c, radius: outer - 3),
             start,
             sweep,
             false,
             Paint()
-              ..color = color.withOpacity((0.35 + 0.4 * g).clamp(0.0, 1.0))
+              ..color = color.withOpacity((0.55 + 0.45 * g).clamp(0.0, 1.0))
               ..style = PaintingStyle.stroke
-              ..strokeWidth = (5 + 7 * g) * k
-              ..maskFilter = MaskFilter.blur(BlurStyle.normal, (4 + 6 * g) * k));
+              ..strokeWidth = (10 + 12 * g) * k
+              ..maskFilter = MaskFilter.blur(BlurStyle.normal, (8 + 10 * g) * k));
       }
       // Track
       _wedge(canvas, c, inner, outer, start, sweep, Paint()..color = color.withOpacity(0.16 + 0.14 * g.clamp(0.0, 1.0)));
@@ -232,6 +232,22 @@ class _WheelPainter extends CustomPainter {
           _text(canvas, 'Quick', pos.translate(0, 26 * k),
               TextStyle(fontFamily: fontFamily, fontSize: 8 * k * textScale, fontStyle: FontStyle.italic, color: onSeg.withOpacity(0.8)));
         }
+      }
+      if (g > 0) {
+        // Bright rim over the slice (visible even on filled slices) + inner wash.
+        final a = g.clamp(0.0, 1.0);
+        _wedge(canvas, c, inner, outer, start, sweep, Paint()..color = Colors.white.withOpacity(0.10 * a));
+        final rim = Path()
+          ..arcTo(Rect.fromCircle(center: c, radius: outer - 1.5), start, sweep, true)
+          ..arcTo(Rect.fromCircle(center: c, radius: inner + 1.5), start + sweep, -sweep, false)
+          ..close();
+        canvas.drawPath(
+            rim,
+            Paint()
+              ..color = Color.lerp(color, Colors.white, 0.55)!.withOpacity((0.6 + 0.4 * a).clamp(0.0, 1.0))
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = (1.5 + 1.5 * g) * k
+              ..maskFilter = MaskFilter.blur(BlurStyle.solid, 2 * k));
       }
       canvas.restore();
     }
