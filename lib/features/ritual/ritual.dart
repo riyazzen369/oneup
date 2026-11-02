@@ -102,6 +102,7 @@ class RitualController extends StateNotifier<RitualState> {
   final SecureStore _store;
   final DateTime Function() now;
   late final Future<void> _ready;
+  Future<void> get ready => _ready;
 
   Future<void> _load() async {
     final s = await _store.read(key);

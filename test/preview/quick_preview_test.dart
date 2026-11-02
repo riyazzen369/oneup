@@ -51,6 +51,7 @@ Future<void> shot(WidgetTester t, String loc, String name, {Map<WellnessDimensio
   addTearDown(t.view.reset);
   final store = MemStore()
     ..m['welcome_shown_v1'] = 'x'
+    ..m['ritual_settings_v1'] = '{"popup":false}'
     ..m[QuickCheckRepository.key] = _quickJson;
   _Seeded? ctl;
   final key = GlobalKey();

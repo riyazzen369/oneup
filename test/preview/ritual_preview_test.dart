@@ -19,6 +19,7 @@ import 'package:oneup/features/quick/quick_check.dart';
 import 'package:oneup/features/quick/quick_check_screen.dart';
 import 'package:oneup/features/ritual/ritual.dart';
 import 'package:oneup/features/ritual/today_card.dart';
+import 'package:oneup/features/profile/profile_page.dart';
 import '../mem_store.dart';
 
 const dir = String.fromEnvironment('PREVIEW_DIR');
@@ -48,12 +49,17 @@ const _quickJson =
     '[{"takenAt":"2026-11-02T10:00:00.000","scores":{"emotional":56,"physical":67,"occupational":44,"social":78,"spiritual":56,"intellectual":89,"environmental":67,"financial":22}}]';
 
 Future<void> shot(WidgetTester t, String loc, String name,
-    {Map<WellnessDimension, int> full = const {}, double scroll = 0, String ritual = '', Future<void> Function()? act}) async {
+    {Map<WellnessDimension, int> full = const {},
+    double scroll = 0,
+    String ritual = '',
+    String settings = '{"popup":false}',
+    Future<void> Function()? act}) async {
   t.view.physicalSize = const Size(1080, 2340);
   t.view.devicePixelRatio = 2.75;
   addTearDown(t.view.reset);
   final store = MemStore()
     ..m['welcome_shown_v1'] = 'x'
+    ..m['ritual_settings_v1'] = settings
     ..m[QuickCheckRepository.key] = _quickJson;
   if (ritual.isNotEmpty) store.m[RitualController.key] = ritual;
   _Seeded? ctl;
@@ -63,6 +69,7 @@ Future<void> shot(WidgetTester t, String loc, String name,
     GoRoute(
         path: '/today',
         builder: (_, __) => const Scaffold(body: SafeArea(child: SingleChildScrollView(padding: EdgeInsets.all(16), child: TodayCard())))),
+    GoRoute(path: '/profile', builder: (_, __) => const ProfilePage()),
     GoRoute(path: '/quick', builder: (_, __) => const QuickCheckScreen()),
     GoRoute(path: '/quick/result', builder: (_, __) => const QuickResultScreen()),
   ]);
@@ -123,5 +130,15 @@ void main() {
     await shot(t, '/today', 'ritual_2_today_open.png', ritual: week);
     await shot(t, '/today', 'ritual_3_low_mood_support.png', ritual: week, act: () => t.tap(find.byKey(const Key('mood-low'))));
     await shot(t, '/today', 'ritual_4_done_streak.png', ritual: done);
+    const full = {WellnessDimension.emotional: 64, WellnessDimension.physical: 72, WellnessDimension.social: 81};
+    await shot(t, '/home', 'ritual_popup_1_sheet.png', ritual: week, settings: '{}', full: full);
+    await shot(t, '/home', 'ritual_popup_2_checked_in.png', ritual: week, settings: '{}', full: full, act: () async {
+      await t.tap(find.descendant(of: find.byKey(const Key('ritual-sheet')), matching: find.byKey(const Key('mood-good'))));
+      await t.pump(const Duration(milliseconds: 100));
+      await t.tap(find.descendant(of: find.byKey(const Key('ritual-sheet')), matching: find.byKey(const Key('today-task-done'))));
+    });
+    await shot(t, '/profile', 'ritual_popup_3_profile_settings.png',
+        settings: '{"popup":true,"notify":true,"hour":9,"minute":0}',
+        act: () => t.scrollUntilVisible(find.byKey(const Key('ritual-time')), 200, scrollable: find.byType(Scrollable).first));
   });
 }

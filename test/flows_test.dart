@@ -50,7 +50,9 @@ void main() {
   setUp(() => Haptics.enabled = false);
 
   testWidgets('demo sign-up: onboarding → login → OTP → profile → consent → home', (t) async {
-    final store = MemStore()..m['welcome_shown_v1'] = 'x';
+    final store = MemStore()
+      ..m['welcome_shown_v1'] = 'x'
+      ..m['ritual_settings_v1'] = '{"popup":false}';
     await _app(t, store);
     await _tap(t, find.text('Skip'));
     await _frames(t, 30);
@@ -84,7 +86,8 @@ void main() {
   testWidgets('assess: completed dimension offers View result / Redo', (t) async {
     final store = MemStore()
       ..m[SecureStore.kOnboarded] = 'true'
-      ..m['welcome_shown_v1'] = 'x';
+      ..m['welcome_shown_v1'] = 'x'
+      ..m['ritual_settings_v1'] = '{"popup":false}';
     _Seeded? ctl;
     final c = await _app(t, store, extra: [assessmentProvider.overrideWith((ref) => ctl = _Seeded(store))]);
     c.read(assessmentProvider);
@@ -134,6 +137,7 @@ void main() {
     final store = MemStore()
       ..m[SecureStore.kOnboarded] = 'true'
       ..m['welcome_shown_v1'] = 'x'
+      ..m['ritual_settings_v1'] = '{"popup":false}'
       ..m['game_best_coin-run'] = '42';
     final c = await _app(t, store);
     c.read(routerProvider).go('/profile');

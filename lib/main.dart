@@ -11,6 +11,8 @@ import 'core/theme/app_theme.dart';
 import 'core/theme/motion.dart';
 import 'core/services/settings_service.dart';
 import 'core/services/haptics.dart';
+import 'features/ritual/ritual_reminders.dart';
+import 'features/ritual/ritual_settings.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,7 +20,13 @@ Future<void> main() async {
   if (Env.isConfigured) {
     await Supabase.initialize(url: Env.supabaseUrl, publishableKey: Env.supabaseAnonKey);
   }
-  runApp(const ProviderScope(child: OneUpApp()));
+  final container = ProviderContainer();
+  // Daily ritual reminder: tapping it opens Home with the ritual pop-up.
+  container.read(ritualRemindersProvider).init(() {
+    container.read(pendingRitualPopupProvider.notifier).state = true;
+    container.read(routerProvider).go(Routes.home);
+  });
+  runApp(UncontrolledProviderScope(container: container, child: const OneUpApp()));
   // Re-apply after the first frame (some OEMs reset it once the surface exists) and on resume.
   WidgetsBinding.instance.addPostFrameCallback((_) => applyHighRefreshRate());
   WidgetsBinding.instance.addObserver(_RefreshRateObserver());

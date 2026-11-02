@@ -21,11 +21,12 @@ const kWelcomeShown = 'welcome_shown_v1';
 
 /// Shows the welcome note once (first Home arrival after setup). The flag lives in
 /// secure storage, so delete-my-data (deleteAll) resets it.
-Future<void> maybeShowWelcome(BuildContext context, WidgetRef ref) async {
+/// Returns true when the welcome was shown (so other pop-ups wait for the next visit).
+Future<bool> maybeShowWelcome(BuildContext context, WidgetRef ref) async {
   final store = ref.read(secureStoreProvider);
-  if (await store.read(kWelcomeShown) != null) return;
+  if (await store.read(kWelcomeShown) != null) return false;
   await store.write(kWelcomeShown, DateTime.now().toUtc().toIso8601String());
-  if (!context.mounted) return;
+  if (!context.mounted) return false;
   Haptics.medium();
   await showGeneralDialog<void>(
     context: context,
@@ -42,6 +43,7 @@ Future<void> maybeShowWelcome(BuildContext context, WidgetRef ref) async {
       );
     },
   );
+  return true;
 }
 
 class WelcomeCard extends StatelessWidget {

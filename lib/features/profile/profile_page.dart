@@ -5,6 +5,8 @@ import '../games/game_scores.dart';
 import '../market/market_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../ritual/ritual_reminders.dart';
+import '../ritual/ritual_settings.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/router/app_router.dart';
@@ -63,6 +65,7 @@ class ProfilePage extends ConsumerWidget {
             onChanged: (v) => ref.read(hapticsProvider.notifier).set(v),
           ),
         ),
+        const _RitualSettingsCard(),
         Card(
           child: ListTile(
             leading: const Icon(Icons.info_outline_rounded),
@@ -134,6 +137,9 @@ Future<void> deleteMyData(WidgetRef ref) async {
   ref.invalidate(readingPositionsProvider);
   ref.invalidate(quickCheckProvider);
   ref.invalidate(ritualProvider);
+  await ref.read(ritualRemindersProvider).cancelAll();
+  ref.invalidate(ritualSettingsProvider);
+  ref.read(pendingRitualPopupProvider.notifier).state = false;
   ref.read(crisisModeProvider.notifier).state = false;
 }
 
@@ -184,6 +190,56 @@ class _ProfileHeader extends ConsumerWidget {
             icon: const Icon(Icons.edit_rounded),
             label: Text(pct < 100 ? 'Complete your profile' : 'Edit profile'),
           ),
+        ),
+      ]),
+    );
+  }
+}
+
+class _RitualSettingsCard extends ConsumerWidget {
+  const _RitualSettingsCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.watch(ritualSettingsProvider);
+    final ctl = ref.read(ritualSettingsProvider.notifier);
+    final time = TimeOfDay(hour: s.hour, minute: s.minute);
+    return Card(
+      key: const Key('ritual-settings'),
+      child: Column(children: [
+        SwitchListTile(
+          key: const Key('ritual-popup-toggle'),
+          secondary: const Icon(Icons.wb_twilight_rounded),
+          title: const Text('Daily ritual pop-up'),
+          subtitle: const Text('Once a day when you open Home'),
+          value: s.popup,
+          onChanged: (v) {
+            Haptics.selection();
+            ctl.update((x) => x.copyWith(popup: v));
+          },
+        ),
+        SwitchListTile(
+          key: const Key('ritual-notify-toggle'),
+          secondary: const Icon(Icons.notifications_active_outlined),
+          title: const Text('Daily reminder'),
+          subtitle: const Text("A gentle nudge, skipped once today's ritual is done"),
+          value: s.notify,
+          onChanged: (v) async {
+            Haptics.selection();
+            await ctl.update((x) => x.copyWith(notify: v, permissionAsked: v ? true : null));
+            if (v) await ref.read(ritualRemindersProvider).requestPermission();
+          },
+        ),
+        ListTile(
+          key: const Key('ritual-time'),
+          enabled: s.notify,
+          leading: const Icon(Icons.schedule_rounded),
+          title: const Text('Reminder time'),
+          trailing: Text(time.format(context), style: Theme.of(context).textTheme.titleSmall),
+          onTap: Haptics.tap(() async {
+            final picked = await showTimePicker(context: context, initialTime: time, helpText: 'Daily reminder time');
+            if (picked != null) await ctl.update((x) => x.copyWith(hour: picked.hour, minute: picked.minute));
+          }),
         ),
       ]),
     );

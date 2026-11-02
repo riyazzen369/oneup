@@ -140,6 +140,7 @@ void main() {
   testWidgets('Home offers Quick Check and marks quick-estimate segments only where no full score exists', (t) async {
     final store = MemStore()
       ..m['welcome_shown_v1'] = 'x'
+      ..m['ritual_settings_v1'] = '{"popup":false}'
       ..m[QuickCheckRepository.key] =
           '[{"takenAt":"2026-11-01T10:00:00.000","scores":{"emotional":60,"physical":60,"occupational":60,"social":60,"spiritual":60,"intellectual":60,"environmental":60,"financial":10}}]';
     t.view.physicalSize = const Size(412, 915) * 3;

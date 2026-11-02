@@ -100,7 +100,8 @@ void main() {
         addTearDown(t.view.reset);
         final store = MemStore()
           ..m[SecureStore.kOnboarded] = 'true'
-          ..m['welcome_shown_v1'] = 'x';
+          ..m['welcome_shown_v1'] = 'x'
+          ..m['ritual_settings_v1'] = '{"popup":false}';
         _Seeded? ctl;
         final container = ProviderContainer(overrides: [
           secureStoreProvider.overrideWithValue(store),

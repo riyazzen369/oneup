@@ -73,7 +73,9 @@ Future<void> shot(WidgetTester t, Widget page, String name, {Size size = const S
     key: UniqueKey(),
     overrides: [
       assessmentProvider.overrideWith((ref) => ctl = _Seeded(store)),
-      secureStoreProvider.overrideWithValue(store..m['welcome_shown_v1'] = 'x'),
+      secureStoreProvider.overrideWithValue(store
+        ..m['welcome_shown_v1'] = 'x'
+        ..m['ritual_settings_v1'] = '{"popup":false}'),
     ],
     child: MaterialApp(debugShowCheckedModeBanner: false, theme: theme, home: RepaintBoundary(key: key, child: page)),
   ));

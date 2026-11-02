@@ -19,6 +19,9 @@ import '../companion/ui/companion_button.dart';
 import '../articles/ui/articles_ui.dart';
 import 'welcome_dialog.dart';
 import '../ritual/today_card.dart';
+import '../ritual/ritual.dart';
+import '../ritual/ritual_popup.dart';
+import '../ritual/ritual_settings.dart';
 import '../quick/quick_check.dart';
 import '../quick/quick_check_screen.dart';
 
@@ -34,14 +37,39 @@ class _HomePageState extends ConsumerState<HomePage> {
     super.initState();
     // First arrival at Home after setup: one-time welcome note.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) maybeShowWelcome(context, ref);
+      if (mounted) _onLanding();
     });
+  }
+
+  Future<void> _onLanding() async {
+    final welcomed = await maybeShowWelcome(context, ref);
+    if (!mounted) return;
+    syncRitualReminders(ref);
+    final pending = ref.read(pendingRitualPopupProvider);
+    if (pending) ref.read(pendingRitualPopupProvider.notifier).state = false;
+    // Never stack the daily pop-up on the first-run welcome or over another screen (e.g. crisis).
+    if ((welcomed && !pending) || !(ModalRoute.of(context)?.isCurrent ?? true)) return;
+    await maybeShowRitualPopup(context, ref, force: pending);
   }
 
   @override
   Widget build(BuildContext context) {
     final s = ref.watch(assessmentProvider);
     final t = Theme.of(context);
+    // Reminder tapped while the app is open: open the ritual pop-up.
+    ref.listen<bool>(pendingRitualPopupProvider, (_, next) {
+      if (!next) return;
+      ref.read(pendingRitualPopupProvider.notifier).state = false;
+      maybeShowRitualPopup(context, ref, force: true);
+    });
+    // Check-in or step done: re-plan reminders (skips today once complete); first check-in asks permission.
+    ref.listen<RitualState>(ritualProvider, (prev, next) {
+      final now = ref.read(ritualProvider.notifier).now();
+      final a = prev?.on(now), b = next.on(now);
+      if (prev == null || !prev.loaded || (a?.mood == b.mood && a?.done == b.done)) return;
+      syncRitualReminders(ref, askPermission: true);
+    });
+    ref.listen<RitualSettings>(ritualSettingsProvider, (_, __) => syncRitualReminders(ref));
     final latest = s.latest;
     final low = lowestDimensions(latest);
     final focus = rankFocus(latest, s.goals, top: 1);
