@@ -1,46 +1,64 @@
-# OneUp — Module 1 (by StellarOne Healthcare Pvt Ltd)
+# OneUP
 
-Flutter + Supabase. Scope: scaffold, theme, splash, onboarding, phone OTP + Google sign-in,
-profile setup, consent, 5-tab shell with placeholder pages, full DB migration with RLS.
+Wellness-awareness app from **StellarOne Healthcare Pvt Ltd** (credit on splash: “Created by Stellar Agents”).
 
-## Run
-```
-flutter create . --platforms=android,ios --org in.stellarone   # generates native folders
-flutter pub get
-flutter run --dart-define=SUPABASE_URL=https://YOUR.supabase.co --dart-define=SUPABASE_ANON_KEY=YOUR_KEY
-```
-Supabase: enable Phone (SMS provider) and Google auth providers; add redirect
-`in.stellarone.oneup://login-callback` and register that deep-link scheme in Android/iOS.
-Apply `supabase/migrations/*.sql` with `supabase db push`.
+OneUP helps people check, understand and improve balance across **eight dimensions**: Emotional, Physical, Occupational, Social, Spiritual, Intellectual, Environmental, Financial.
+
+Current app version: **0.3.0+28**. Flutter + Supabase (optional). Package / bundle ID: `in.stellarone.oneup`.
 
 > OneUp is for wellness awareness, not medical diagnosis.
 
-## Open items
-- StellarOne official logo: not available from stellaragents.in — drop it in `assets/images/stellarone_logo.png`.
-- Consent wording vs DPDP Act 2023: [VERIFY] with legal counsel.
+**Full developer handover** (front end, back end, design, deploy, access): [HANDOVER.md](HANDOVER.md).  
+Assistant brief: [CLAUDE.md](CLAUDE.md). iOS / TestFlight steps: [IOS_SETUP.md](IOS_SETUP.md).
 
-## Module 2 — Assessment
-- 72 original items in `lib/features/assess/data/question_bank.dart` (local fallback) and
-  `supabase/migrations/20261021010000_seed_questions.sql` (same deterministic IDs).
-- Answers encrypted with AES-256-GCM (key in flutter_secure_storage); AAD = `assessmentId:questionId`.
-- Scoring: v' = 6 − v (reverse), S = Σv', score = round((S − 8) / 32 × 100) over 8 scored items; item 9 is an unscored open-text reflection. Bands 0–40 Needs Attention / 41–70 Developing / 71–100 Thriving.
+## Quick start
 
-## Module 3 — Results
-- Each dimension attempt is its own `assessments` row (redo one dimension without losing history).
-- History + goals are cached in secure storage and merged from Supabase on launch / pull-to-refresh.
-- Wheel, radar and line charts are CustomPainters (no chart dependency).
+You need [Flutter 3.24.5](https://docs.flutter.dev/release/archive) (Dart 3.5.4). The project SDK constraint is `>=3.4.0 <4.0.0`.
 
-## OneUp Companion
-- Spec: `assets/companion/spec.json` (also bundled into the edge function).
-- Demo/offline: rule-based responder in `lib/features/companion/domain/offline_responder.dart`.
-- App-side crisis layer: `lib/core/safety/crisis_detector.dart` → full-screen helpline card (`/crisis`).
-
-### Deploy the edge function
+```bash
+git clone https://github.com/riyazzen369/oneup.git
+cd oneup
+flutter pub get
+flutter run                 # demo mode — any 10-digit number, OTP 123456, data stays on this device
+flutter analyze
+flutter test
 ```
-supabase link --project-ref <ref>
-supabase db push                                   # applies migrations incl. companion_flags
-supabase secrets set AI_API_KEY=... AI_BASE_URL=https://<provider>/v1 AI_MODEL=<model>
-supabase functions deploy companion                # JWT verification stays ON (default)
+
+Supported in this repo: **Android**, **iOS**, and **web** (`flutter run -d chrome`). Windows / macOS / Linux platform folders are not present.
+
+### Optional: real Supabase keys (local only)
+
+```bash
+cp env.example.json env.json   # fill in values; env.json is gitignored
+flutter run --dart-define-from-file=env.json
 ```
-The app calls it via `supabase.functions.invoke('companion')` only when built with
-`--dart-define=SUPABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...` and the user is signed in.
+
+Variable **names** (never commit values): `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `GOOGLE_WEB_CLIENT_ID`.  
+You can still pass them as `--dart-define=NAME=...` if you prefer. With empty or missing keys the app stays in demo mode.
+
+### VS Code / Cursor
+
+Open this folder, install the recommended **Dart** and **Flutter** extensions (`.vscode/extensions.json`), then launch **OneUP (demo)** or **OneUP (from env.json)**. Copy `env.example.json` to `env.json` first if you use the second config. CLI commands above keep working unchanged.
+
+## What is in this tree (short)
+
+- Full assessment (72 original questions, encrypted answers, Wellness Wheel, Focus, Trends)
+- 16 games, 50 Learn lessons, articles, offline Companion with a crisis path
+- OneUP Plus, Privacy Center, daily ritual, weekly report, quick check, referral and B2B demos — see the status table in [HANDOVER.md](HANDOVER.md)
+- Marketplace, consult booking, Plus purchases and several Phase 3 services are **SAMPLE / demo only** (no real payments)
+
+## Android signing
+
+Release builds read `android/key.properties` (gitignored) for `storeFile`, `storePassword`, `keyAlias` and `keyPassword`. The keystore is held privately and must never be committed. See [docs/handover/deploy.md](docs/handover/deploy.md).
+
+## iOS / TestFlight
+
+Codemagic workflow `ios-testflight` in `codemagic.yaml` builds on push to `main` and can upload to TestFlight. You still need to set `APP_STORE_APPLE_ID` and the Codemagic signing group `app_store_credentials`. Follow [IOS_SETUP.md](IOS_SETUP.md).
+
+## Web
+
+```bash
+flutter build web --release    # output: build/web/
+```
+
+There is no Netlify (or other host) config in this repo yet. Wide screens show the app in a phone frame. Details: [docs/handover/deploy.md](docs/handover/deploy.md).

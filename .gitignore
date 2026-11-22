@@ -58,3 +58,7 @@ key.properties
 # Local build outputs
 *.apk
 *.ipa
+
+# Local dart-define values (copy from env.example.json). Never commit real keys.
+env.json
+
