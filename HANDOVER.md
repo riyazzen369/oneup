@@ -77,7 +77,7 @@ VS Code: open the repo folder, install the recommended Dart and Flutter extensio
 
 | Area | What is still fake or local-only |
 |------|----------------------------------|
-| Auth | Demo OTP `123456` when keys are empty. Google sign-in throws in demo mode. No Android login-callback intent-filter yet (iOS URL scheme is present) |
+| Auth | Demo OTP `123456` when keys are empty. Google sign-in throws in demo mode. Android and iOS both declare the `in.stellarone.oneup://login-callback` scheme (Android not yet tested on a device) |
 | OneUP Plus (#9) | Local encrypted entitlement, 7-day trial, SAMPLE prices (₹149/month, ₹1,299/year, both `[VERIFY]`). No billing SDK |
 | Plus services (#9b) | SAMPLE expert consultation, 1-on-1 coaching, “Picked for you”, reports dashboard, priority support. Requests stay on device. Crisis help stays free |
 | Marketplace | SAMPLE catalogue, cart, wishlist, **demo checkout only** (no payment). Consult-only “medicines” are not sold directly |
@@ -105,7 +105,7 @@ VS Code: open the repo folder, install the recommended Dart and Flutter extensio
 
 - **Migrations not applied.** Comments in the SQL and project brief say the schema has not been applied to a live Supabase project. The connected Supabase account visible during this handover listed no projects, so a live schema could not be exported.
 - **Marketplace schema drift.** `20261021000000_init.sql` creates `products` (UUID id, different columns) plus `wishlist` / `cart_items` / `orders`. `20261022070000_market.sql` uses `create table if not exists public.products` with a **different** shape (`text` id, `name like 'SAMPLE %'`) and new tables `market_wishlist`, `market_cart`, `market_orders`. Applying both in order will keep the *init* `products` table and skip the later definition. This must be reconciled before a real `db push`.
-- **Android deep link missing.** Google / Supabase auth redirect is `in.stellarone.oneup://login-callback`. iOS declares the URL scheme; `AndroidManifest.xml` has no corresponding intent-filter.
+- **Android deep link untested.** Google / Supabase auth redirect is `in.stellarone.oneup://login-callback`. Both platforms now declare it (Android intent-filter on `MainActivity`); verify on a device once Supabase is live.
 - **`GOOGLE_WEB_CLIENT_ID`** is read in `lib/core/config/env.dart` but not referenced elsewhere in Dart. Codemagic still passes it as an empty dart-define.
 - **Call screen** is a demo UI only.
 - **README** (before this handover) still described an early “Module 1” scope; this document and the refreshed README are the current picture.
@@ -116,7 +116,7 @@ VS Code: open the repo folder, install the recommended Dart and Flutter extensio
 ## Suggested next steps toward production
 
 1. Sir grants the new developer the access listed in [docs/handover/access.md](docs/handover/access.md). This handover does not invite anyone or change permissions.
-2. Create (or share) a Supabase project, reconcile the marketplace migrations, review RLS, apply `supabase/migrations/*`, deploy the `companion` Edge Function, and enable Phone + Google auth. Add the Android login-callback intent-filter and register the redirect URL in Supabase.
+2. Create (or share) a Supabase project, reconcile the marketplace migrations, review RLS, apply `supabase/migrations/*`, deploy the `companion` Edge Function, and enable Phone + Google auth. Register the `in.stellarone.oneup://login-callback` redirect URL in Supabase and test Google sign-in on an Android device.
 3. Replace demo Plus billing, market checkout and consult payments with a real gateway; keep crisis help free.
 4. Replace SAMPLE consultants, coaches, experts and products with real, consented data. Run psychologist / therapist review of the question bank and lessons.
 5. Fill `APP_STORE_APPLE_ID`, complete Codemagic signing, and cut a TestFlight build. Decide a Play Store keystore (not the demo key) if Android is going to Play.

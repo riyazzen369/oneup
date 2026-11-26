@@ -79,7 +79,7 @@ There is no `windows/` (or macOS/Linux) platform tree in this repo.
 
 ## Production gaps (summary)
 
-Full list: [HANDOVER.md](HANDOVER.md). Highlights: create/share a Supabase project and fix marketplace migration drift before `db push`; add the Android login-callback intent-filter; replace demo payments and SAMPLE catalogue/consult/Plus; review questions and lessons with qualified people; fill `APP_STORE_APPLE_ID`; confirm or add Netlify (no site config in repo); DPDP / store-policy review `[VERIFY]`.
+Full list: [HANDOVER.md](HANDOVER.md). Highlights: create/share a Supabase project and fix marketplace migration drift before `db push`; test the Android login callback on a device once Supabase is live; replace demo payments and SAMPLE catalogue/consult/Plus; review questions and lessons with qualified people; fill `APP_STORE_APPLE_ID`; confirm or add Netlify (no site config in repo); DPDP / store-policy review `[VERIFY]`.
 
 ## How to work
 

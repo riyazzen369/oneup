@@ -39,7 +39,7 @@ Copy `env.example.json` to `env.json` (gitignored) and pass `--dart-define-from-
 - Profile rows live in `profiles` (upsert/select by `auth.uid()`).
 - Consent writes `consent_version` and `consent_at`.
 
-Enable Phone (SMS provider) and Google in the Supabase Auth dashboard when the project exists. Register redirect `in.stellarone.oneup://login-callback`. iOS already declares that URL scheme in `Info.plist`. **Android does not yet have an intent-filter for it.**
+Enable Phone (SMS provider) and Google in the Supabase Auth dashboard when the project exists. Register redirect `in.stellarone.oneup://login-callback`. iOS already declares that URL scheme in `Info.plist`. Android declares the same scheme and host via an intent-filter on `MainActivity` in `AndroidManifest.xml`. Still to verify on a real device once a Supabase project exists.
 
 ## Migrations in the repo
 
