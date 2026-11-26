@@ -35,7 +35,7 @@ assets/content/    learn.json (50 lessons), articles.json
 assets/companion/  spec.json
 supabase/migrations/   intended schema — not applied to a live project as of this handover
 supabase/functions/companion/   Edge Function source (AI keys are server secrets, never in the app)
-test/              52 Dart test files (unit, widget, flow, preview)
+test/              53 Dart test files (unit, widget, flow, preview)
 ```
 
 Pattern: `data/` → `domain/` → `ui/` where those folders exist. Keep business logic out of widgets.

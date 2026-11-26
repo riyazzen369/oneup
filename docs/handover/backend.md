@@ -55,6 +55,7 @@ All under `supabase/migrations/`. Apply, once a project exists, with `supabase d
 | `20261022030000_profile_details.sql` | Extra optional profile columns; drops `avatar_url`; private Storage bucket `avatars` at `avatars/<uid>/avatar.jpg`, owner-only policies. Notes that `delete_my_data()` cannot delete storage objects from SQL — the app must remove the avatar via the Storage API first |
 | `20261022040000_articles.sql` | `articles` table; select for anon + authenticated when `is_active`; no client writes (editors would use the service role) |
 | `20261022050000_learn.sql` | `lessons` (read-only for clients) and `learn_progress` (own rows) |
+| `20261022080000_market_seed.sql` | Seeds `products` with the 79 SAMPLE catalogue items (idempotent upsert) |
 | `20261022070000_market.sql` | Demo market tables `market_wishlist`, `market_cart`, `market_orders`; cart guard trigger; comment: “Not yet applied remotely”. Also contains `create table if not exists public.products` with a the only `products` definition (init’s was removed) — see drift section below |
 
 There is no `config.toml` or generated types folder in this checkout.
@@ -77,7 +78,7 @@ Previously `init` created a UUID-keyed `products` (plus `wishlist`, `cart_items`
 
 Fix: those four unused tables, their RLS and policies were removed from `20261021000000_init.sql`. `products` is now defined once, in `20261022070000_market.sql`. `orders` stays in init because `bookings.order_id` references it. All nine migrations were applied in order on a throwaway Postgres 16 with stubbed `auth` objects; they ran clean (Supabase `storage` was not stubbed, so the avatars-bucket statement in `profile_details` was not exercised).
 
-Still open: the migration creates `products` but seeds no rows (the SAMPLE catalogue is local in the app), so `market_cart_guard` blocks nothing until `products` is seeded. Seed it before relying on server-side consult-only enforcement. Not tested against a real Supabase project.
+The SAMPLE catalogue (79 items) is seeded by `20261022080000_market_seed.sql`, generated from `catalog` in `lib/features/market/market_models.dart`. `test/market_seed_sync_test.dart` fails if the SQL and the Dart list drift, so change both together. The three consult-only items (`ph-supplement`, `ph-medicine`, `em-sleep-aid`) are rejected by `market_cart_guard`; this was checked on local Postgres. Not tested against a real Supabase project.
 
 ## What the Flutter client actually calls
 
