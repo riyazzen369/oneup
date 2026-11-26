@@ -35,7 +35,7 @@ assets/content/    learn.json (50 lessons), articles.json
 assets/companion/  spec.json
 supabase/migrations/   intended schema — not applied to a live project as of this handover
 supabase/functions/companion/   Edge Function source (AI keys are server secrets, never in the app)
-test/              52 Dart test files (unit, widget, flow, preview)
+test/              53 Dart test files (unit, widget, flow, preview)
 ```
 
 Pattern: `data/` → `domain/` → `ui/` where those folders exist. Keep business logic out of widgets.
@@ -79,7 +79,7 @@ There is no `windows/` (or macOS/Linux) platform tree in this repo.
 
 ## Production gaps (summary)
 
-Full list: [HANDOVER.md](HANDOVER.md). Highlights: create/share a Supabase project and fix marketplace migration drift before `db push`; add the Android login-callback intent-filter; replace demo payments and SAMPLE catalogue/consult/Plus; review questions and lessons with qualified people; fill `APP_STORE_APPLE_ID`; confirm or add Netlify (no site config in repo); DPDP / store-policy review `[VERIFY]`.
+Full list: [HANDOVER.md](HANDOVER.md). Highlights: create/share a Supabase project and review the (now reconciled) migrations before `db push`; test the Android login callback on a device once Supabase is live; replace demo payments and SAMPLE catalogue/consult/Plus; review questions and lessons with qualified people; fill `APP_STORE_APPLE_ID`; confirm or add Netlify (no site config in repo); DPDP / store-policy review `[VERIFY]`.
 
 ## How to work
 

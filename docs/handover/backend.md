@@ -39,11 +39,11 @@ Copy `env.example.json` to `env.json` (gitignored) and pass `--dart-define-from-
 - Profile rows live in `profiles` (upsert/select by `auth.uid()`).
 - Consent writes `consent_version` and `consent_at`.
 
-Enable Phone (SMS provider) and Google in the Supabase Auth dashboard when the project exists. Register redirect `in.stellarone.oneup://login-callback`. iOS already declares that URL scheme in `Info.plist`. **Android does not yet have an intent-filter for it.**
+Enable Phone (SMS provider) and Google in the Supabase Auth dashboard when the project exists. Register redirect `in.stellarone.oneup://login-callback`. iOS already declares that URL scheme in `Info.plist`. Android declares the same scheme and host via an intent-filter on `MainActivity` in `AndroidManifest.xml`. Still to verify on a real device once a Supabase project exists.
 
 ## Migrations in the repo
 
-All under `supabase/migrations/`. Apply, once a project exists and the marketplace drift is fixed, with `supabase db push` (after `supabase link`).
+All under `supabase/migrations/`. Apply, once a project exists, with `supabase db push` (after `supabase link`).
 
 | File | What it does |
 |------|----------------|
@@ -55,7 +55,8 @@ All under `supabase/migrations/`. Apply, once a project exists and the marketpla
 | `20261022030000_profile_details.sql` | Extra optional profile columns; drops `avatar_url`; private Storage bucket `avatars` at `avatars/<uid>/avatar.jpg`, owner-only policies. Notes that `delete_my_data()` cannot delete storage objects from SQL — the app must remove the avatar via the Storage API first |
 | `20261022040000_articles.sql` | `articles` table; select for anon + authenticated when `is_active`; no client writes (editors would use the service role) |
 | `20261022050000_learn.sql` | `lessons` (read-only for clients) and `learn_progress` (own rows) |
-| `20261022070000_market.sql` | Demo market tables `market_wishlist`, `market_cart`, `market_orders`; cart guard trigger; comment: “Not yet applied remotely”. Also contains `create table if not exists public.products` with a **different** shape than init — see drift below |
+| `20261022080000_market_seed.sql` | Seeds `products` with the 79 SAMPLE catalogue items (idempotent upsert) |
+| `20261022070000_market.sql` | Demo market tables `market_wishlist`, `market_cart`, `market_orders`; cart guard trigger; comment: “Not yet applied remotely”. Also contains `create table if not exists public.products` with a the only `products` definition (init’s was removed) — see drift section below |
 
 There is no `config.toml` or generated types folder in this checkout.
 
@@ -71,13 +72,13 @@ There is no `config.toml` or generated types folder in this checkout.
 
 Always re-read the SQL before changing policies. A live project should be reviewed after apply — especially `products` and any policy that uses `using (true)` without a role qualifier.
 
-## Marketplace schema drift (must fix before apply)
+## Marketplace schema drift (fixed in the repo)
 
-Init creates `public.products` with UUID primary key and columns such as `category`, `title`, `price_inr`, `is_sample`.
+Previously `init` created a UUID-keyed `products` (plus `wishlist`, `cart_items`, `order_items`) and the later market migration's `create table if not exists public.products` (text id, `consult_only`) would have been silently skipped. The app only ever used the `market_*` tables with text product ids.
 
-The later market migration does `create table if not exists public.products` with `id text`, `dimension`, `name` checked as `SAMPLE %`, `price_sample`, `consult_only`. If init already created `products`, this later statement is a no-op, and the app’s market repository (`market_wishlist`, `market_cart`, `market_orders`, text product ids) will not match the init table.
+Fix: those four unused tables, their RLS and policies were removed from `20261021000000_init.sql`. `products` is now defined once, in `20261022070000_market.sql`. `orders` stays in init because `bookings.order_id` references it. All nine migrations were applied in order on a throwaway Postgres 16 with stubbed `auth` objects; they ran clean (Supabase `storage` was not stubbed, so the avatars-bucket statement in `profile_details` was not exercised).
 
-Reconcile these migrations (replace, alter, or split) before pushing to a hosted database.
+The SAMPLE catalogue (79 items) is seeded by `20261022080000_market_seed.sql`, generated from `catalog` in `lib/features/market/market_models.dart`. `test/market_seed_sync_test.dart` fails if the SQL and the Dart list drift, so change both together. The three consult-only items (`ph-supplement`, `ph-medicine`, `em-sleep-aid`) are rejected by `market_cart_guard`; this was checked on local Postgres. Not tested against a real Supabase project.
 
 ## What the Flutter client actually calls
 
