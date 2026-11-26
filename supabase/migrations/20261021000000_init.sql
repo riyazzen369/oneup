@@ -1,5 +1,5 @@
 -- OneUp full data model (module 1). Row-level security: users only see their own rows.
--- Catalogue tables (dimensions, questions, products, consultants, slots) are read-only to clients.
+-- Catalogue tables (dimensions, questions, consultants, slots) are read-only to clients.
 create extension if not exists pgcrypto;
 
 -- PROFILES ---------------------------------------------------------------
@@ -78,17 +78,9 @@ create table public.goals (
 );
 
 -- MARKETPLACE (SAMPLE data only) -----------------------------------------
-create table public.products (
-  id uuid primary key default gen_random_uuid(),
-  category text not null check (category in ('medicine','supplement','lifestyle','book','course')),
-  dimension_ids smallint[] not null default '{}',
-  title text not null,
-  description text,
-  price_inr numeric(10,2),
-  requires_prescription boolean not null default false,
-  is_sample boolean not null default true
-);
-
+-- Catalogue, wishlist, cart and demo orders live in 20261022070000_market.sql
+-- (products / market_wishlist / market_cart / market_orders, text product ids).
+-- Only consultants, slots, bookings and a placeholder orders table are here.
 create table public.consultants (
   id uuid primary key default gen_random_uuid(),
   type text not null check (type in ('therapist','counsellor','coach')),
@@ -105,34 +97,12 @@ create table public.slots (
   is_booked boolean not null default false
 );
 
-create table public.wishlist (
-  user_id uuid not null references auth.users(id) on delete cascade,
-  product_id uuid not null references public.products(id) on delete cascade,
-  created_at timestamptz not null default now(),
-  primary key (user_id, product_id)
-);
-
-create table public.cart_items (
-  user_id uuid not null references auth.users(id) on delete cascade,
-  product_id uuid not null references public.products(id) on delete cascade,
-  qty int not null default 1 check (qty > 0),
-  primary key (user_id, product_id)
-);
-
 create table public.orders (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
   total_inr numeric(10,2) not null default 0,
   status text not null default 'placed' check (status in ('placed','paid_placeholder','cancelled')),
   created_at timestamptz not null default now()
-);
-
-create table public.order_items (
-  id uuid primary key default gen_random_uuid(),
-  order_id uuid not null references public.orders(id) on delete cascade,
-  product_id uuid references public.products(id),
-  qty int not null default 1,
-  price_inr numeric(10,2) not null
 );
 
 create table public.bookings (
@@ -152,19 +122,14 @@ alter table public.assessments enable row level security;
 alter table public.answers enable row level security;
 alter table public.dimension_scores enable row level security;
 alter table public.goals enable row level security;
-alter table public.products enable row level security;
 alter table public.consultants enable row level security;
 alter table public.slots enable row level security;
-alter table public.wishlist enable row level security;
-alter table public.cart_items enable row level security;
 alter table public.orders enable row level security;
-alter table public.order_items enable row level security;
 alter table public.bookings enable row level security;
 
 -- Catalogue: read-only for signed-in users.
 create policy "read dimensions" on public.dimensions for select to authenticated using (true);
 create policy "read questions" on public.questions for select to authenticated using (true);
-create policy "read products" on public.products for select to authenticated using (true);
 create policy "read consultants" on public.consultants for select to authenticated using (true);
 create policy "read slots" on public.slots for select to authenticated using (true);
 
@@ -174,10 +139,6 @@ create policy "own profile" on public.profiles for all to authenticated
 create policy "own assessments" on public.assessments for all to authenticated
   using (user_id = auth.uid()) with check (user_id = auth.uid());
 create policy "own goals" on public.goals for all to authenticated
-  using (user_id = auth.uid()) with check (user_id = auth.uid());
-create policy "own wishlist" on public.wishlist for all to authenticated
-  using (user_id = auth.uid()) with check (user_id = auth.uid());
-create policy "own cart" on public.cart_items for all to authenticated
   using (user_id = auth.uid()) with check (user_id = auth.uid());
 create policy "own orders" on public.orders for all to authenticated
   using (user_id = auth.uid()) with check (user_id = auth.uid());
@@ -191,13 +152,10 @@ create policy "own answers" on public.answers for all to authenticated
 create policy "own scores" on public.dimension_scores for all to authenticated
   using (exists (select 1 from public.assessments a where a.id = assessment_id and a.user_id = auth.uid()))
   with check (exists (select 1 from public.assessments a where a.id = assessment_id and a.user_id = auth.uid()));
-create policy "own order items" on public.order_items for all to authenticated
-  using (exists (select 1 from public.orders o where o.id = order_id and o.user_id = auth.uid()))
-  with check (exists (select 1 from public.orders o where o.id = order_id and o.user_id = auth.uid()));
 
 -- DELETE MY DATA ---------------------------------------------------------
 -- Removes the auth user; all user rows cascade (profiles, assessments→answers/scores,
--- goals, wishlist, cart, orders→order_items, bookings).
+-- goals, market_* rows, orders, bookings).
 create or replace function public.delete_my_data()
 returns void language plpgsql security definer set search_path = public, auth as $$
 begin

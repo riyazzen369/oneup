@@ -104,7 +104,7 @@ VS Code: open the repo folder, install the recommended Dart and Flutter extensio
 ## Known issues and tech debt
 
 - **Migrations not applied.** Comments in the SQL and project brief say the schema has not been applied to a live Supabase project. The connected Supabase account visible during this handover listed no projects, so a live schema could not be exported.
-- **Marketplace schema drift.** `20261021000000_init.sql` creates `products` (UUID id, different columns) plus `wishlist` / `cart_items` / `orders`. `20261022070000_market.sql` uses `create table if not exists public.products` with a **different** shape (`text` id, `name like 'SAMPLE %'`) and new tables `market_wishlist`, `market_cart`, `market_orders`. Applying both in order will keep the *init* `products` table and skip the later definition. This must be reconciled before a real `db push`.
+- **Marketplace schema drift: fixed in the repo.** Unused UUID `products` / `wishlist` / `cart_items` / `order_items` were removed from `init`; `products` is defined once in the market migration (see [backend.md](docs/handover/backend.md)). Still open: `products` has no seed rows, so the cart guard does nothing until seeded; untested on a real Supabase project.
 - **Android deep link untested.** Google / Supabase auth redirect is `in.stellarone.oneup://login-callback`. Both platforms now declare it (Android intent-filter on `MainActivity`); verify on a device once Supabase is live.
 - **`GOOGLE_WEB_CLIENT_ID`** is read in `lib/core/config/env.dart` but not referenced elsewhere in Dart. Codemagic still passes it as an empty dart-define.
 - **Call screen** is a demo UI only.
@@ -116,7 +116,7 @@ VS Code: open the repo folder, install the recommended Dart and Flutter extensio
 ## Suggested next steps toward production
 
 1. Sir grants the new developer the access listed in [docs/handover/access.md](docs/handover/access.md). This handover does not invite anyone or change permissions.
-2. Create (or share) a Supabase project, reconcile the marketplace migrations, review RLS, apply `supabase/migrations/*`, deploy the `companion` Edge Function, and enable Phone + Google auth. Register the `in.stellarone.oneup://login-callback` redirect URL in Supabase and test Google sign-in on an Android device.
+2. Create (or share) a Supabase project, review RLS (and seed `products` if you want server-side consult-only enforcement), apply `supabase/migrations/*`, deploy the `companion` Edge Function, and enable Phone + Google auth. Register the `in.stellarone.oneup://login-callback` redirect URL in Supabase and test Google sign-in on an Android device.
 3. Replace demo Plus billing, market checkout and consult payments with a real gateway; keep crisis help free.
 4. Replace SAMPLE consultants, coaches, experts and products with real, consented data. Run psychologist / therapist review of the question bank and lessons.
 5. Fill `APP_STORE_APPLE_ID`, complete Codemagic signing, and cut a TestFlight build. Decide a Play Store keystore (not the demo key) if Android is going to Play.
