@@ -91,7 +91,8 @@ If Sir already has a Netlify site, he should share the **site name** and invite 
 
 - Build command: `flutter build web --release` (the Netlify image must have Flutter 3.24.5, or the command must install it)
 - Publish directory: `build/web`
-- SPA fallback: redirect all routes to `/index.html` (go_router uses path URLs; a refresh on `/home` will 404 without this)
+- SPA fallback: **not required.** The app uses go_router's default hash URLs (`/#/home`), so a refresh works on any static host. A catch-all redirect is harmless but unnecessary (checked in a local browser run).
+- CanvasKit: the default `flutter build web` loads CanvasKit from `www.gstatic.com` at runtime, so the page is blank on networks that block it. Add `--no-web-resources-cdn` to bundle it (about 7 MB larger) if that matters.
 
 Until that is agreed and committed, treat Netlify as **intended / to be confirmed**, not as a configured pipeline.
 

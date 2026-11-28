@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../../core/widgets/oneup_logo.dart';
 import '../consent/consent_screen.dart' show kDisclaimer;
 
+/// Keep in step with `version:` in pubspec.yaml (test/about_version_test.dart enforces it).
+const kAppVersion = '0.3.0 (28)';
+
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
 
@@ -14,7 +17,7 @@ class AboutScreen extends StatelessWidget {
         const Center(child: OneUpLogo(size: 96)),
         const SizedBox(height: 16),
         Text('OneUp', textAlign: TextAlign.center, style: t.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700)),
-        Text('Version 0.2.0', textAlign: TextAlign.center, style: t.textTheme.bodySmall),
+        Text('Version $kAppVersion', textAlign: TextAlign.center, style: t.textTheme.bodySmall),
         const SizedBox(height: 24),
         Card(
           child: Padding(
